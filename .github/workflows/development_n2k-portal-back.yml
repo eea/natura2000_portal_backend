@@ -15,31 +15,36 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '6.0.x'
+          include-prerelease: true
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
+        
+      - name: copy config
+        run: |
+          copy natura2000_portal_back/Configs/appsettings_dev.json natura2000_portal_back/appsettings.json  
+          del natura2000_portal_back/Configs/*.json
+          rmdir natura2000_portal_back/Configs               
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+        run: dotnet publish -c Release -o C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
-
+          path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
   deploy:
     runs-on: windows-latest
     needs: build
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    
+
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
@@ -48,9 +53,19 @@ jobs:
       
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v3
+        uses: azure/webapps-deploy@v2
         with:
-          app-name: 'n2k-portal-back'
+          app-name: n2k-portal-back'
           slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_26817C37D09F4D04B5209B1D98373478 }}
           package: .
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_71F1A85C334548A08092BE0DA6A30293 }}
+         
+  delete:
+    runs-on: windows-latest
+    needs: deploy
+    steps:
+      - name: Delete Old Artifacts
+        id: artifact
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: .net-app
