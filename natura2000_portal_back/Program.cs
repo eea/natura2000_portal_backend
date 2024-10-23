@@ -1,15 +1,15 @@
-using N2K_BackboneBackEnd.Data;
+using natura2000_portal_back.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json.Serialization;
 using Microsoft.OpenApi.Models;
-using N2K_BackboneBackEnd.Services;
-using N2K_BackboneBackEnd.Models;
+using natura2000_portal_back.Services;
+using natura2000_portal_back.Models;
 using Microsoft.AspNetCore.ResponseCompression;
 using System.IO.Compression;
-using N2K_BackboneBackEnd.Helpers;
+using natura2000_portal_back.Helpers;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.FileProviders;
-using N2K_BackboneBackEnd.Hubs;
+using natura2000_portal_back.Hubs;
 
 
 var builder = WebApplication.CreateBuilder(args);

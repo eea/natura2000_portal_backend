@@ -15,14 +15,20 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '6.0.x'
+          include-prerelease: true
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
+        
+      - name: copy config
+        run: |
+          copy natura2000_portal_back/Configs/appsettings_dev.json natura2000_portal_back/appsettings.json  
+          del natura2000_portal_back/Configs/*.json
+          rmdir natura2000_portal_back/Configs               
 
       - name: dotnet publish
         run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
@@ -32,15 +38,12 @@ jobs:
         with:
           name: .net-app
           path: ${{env.DOTNET_ROOT}}/myapp
-
   deploy:
     runs-on: windows-latest
     needs: build
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-    permissions:
-      id-token: write #This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
@@ -62,4 +65,13 @@ jobs:
           app-name: 'n2k-portal-back'
           slot-name: 'Production'
           package: .
-          
+
+  delete:
+    runs-on: windows-latest
+    needs: deploy
+    steps:
+      - name: Delete Old Artifacts
+        id: artifact
+        uses: geekyeggo/delete-artifact@v2
+        with:
+          name: .net-app
