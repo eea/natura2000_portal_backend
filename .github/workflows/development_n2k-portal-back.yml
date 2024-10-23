@@ -15,49 +15,37 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '6.0.x'
-          include-prerelease: true
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
-        
-      - name: copy config
-        run: |
-          copy natura2000_portal_back/Configs/appsettings_dev.json natura2000_portal_back/appsettings.json  
-          del natura2000_portal_back/Configs/*.json
-          rmdir natura2000_portal_back/Configs               
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+        run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+          path: ${{env.DOTNET_ROOT}}/myapp
+
   deploy:
     runs-on: windows-latest
     needs: build
     environment:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+    
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
       
-      - name: Login to Azure
-        uses: azure/login@v2
-        with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_6DD27A00D2C946F2AD490A610458CE1F }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_788D0C5C2CE24747813081772124A373 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_DF76EA0F7D2C44C1AEE28CD04DDA55D4 }}
-
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
@@ -65,13 +53,4 @@ jobs:
           app-name: 'n2k-portal-back'
           slot-name: 'Production'
           package: .
-
-  delete:
-    runs-on: windows-latest
-    needs: deploy
-    steps:
-      - name: Delete Old Artifacts
-        id: artifact
-        uses: geekyeggo/delete-artifact@v2
-        with:
-          name: .net-app
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_71F1A85C334548A08092BE0DA6A30293 }}
