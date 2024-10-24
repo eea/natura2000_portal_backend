@@ -109,7 +109,10 @@ namespace natura2000_portal_back.Services
                 {
                     result = result.Where(w => w.ReleaseId == releaseId).ToList();
                 }
-                //UNUSED: FILTERED BY habitatGroup
+                if (habitatGroup != null)
+                {
+                    result = result.Where(w => w.HabitatCode[0].ToString() == habitatGroup).ToList();
+                }
                 if (country != null)
                 {
                     result = result.Where(w => country.Contains(w.Country)).ToList();
