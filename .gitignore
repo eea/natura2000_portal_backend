@@ -69,8 +69,8 @@ artifacts/
 #N2K_BackboneBackEnd/appsettings.json
 
 #CI/CD
-/.github/workflows/*.yml
-.github/workflows/*.yml
+#/.github/workflows/*.yml
+#.github/workflows/*.yml
 
 
 # ASP.NET Scaffolding
