@@ -1,0 +1,40 @@
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
+
+name: Build  ASP.Net Core app for n2k-portal-backend
+
+on:
+  push:
+    branches:
+      - staging
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '6.0.x'
+          include-prerelease: true
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
+
+      - name: copy config
+        run: |
+          copy natura2000_portal_back/Configs/appsettings_stg.json natura2000_portal_back/appsettings.json  
+          del natura2000_portal_back/Configs/*.json
+          rmdir natura2000_portal_back/Configs
+
+      - name: dotnet publish
+        run: dotnet publish -c Release -o C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+
+      - name: Upload artifact for deployment job in Staging
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-app_staging
+          path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
