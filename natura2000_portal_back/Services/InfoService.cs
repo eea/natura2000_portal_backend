@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using natura2000_portal_back.Data;
 using natura2000_portal_back.Models;
 using natura2000_portal_back.Models.release_db;
@@ -39,44 +40,44 @@ namespace natura2000_portal_back.Services
             }
         }
 
-        public async Task<List<SitesParametered>> GetParameteredSites(long? releaseId, string? siteType, string? country, string? bioregion, string? siteCode, string? siteName, string? habitatCode, string? speciesCode)
+        public async Task<List<SitesParametered>> GetParameteredSites(long? releaseId, string? siteType, string? country, string? bioregion, string? site, string? habitat, string? species)
         {
             try
             {
-                List<SitesParameteredExtended> result = await _releaseContext.Set<SitesParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredSites").AsNoTracking().ToListAsync();
+                if (releaseId == null)
+                    releaseId = await _releaseContext.Set<Releases>().OrderByDescending(o => o.CreateDate).Select(s => s.ID).FirstOrDefaultAsync();
 
-                if (releaseId != null)
-                {
-                    result = result.Where(w => w.ReleaseId == releaseId).ToList();
-                }
+                SqlParameter param1 = new("@releaseId", releaseId);
+                List<SitesParameteredExtended> result = await _releaseContext.Set<SitesParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredSites @releaseId", param1).AsNoTracking().ToListAsync();
+
                 if (siteType != null)
                 {
-                    result = result.Where(w => w.SiteTypeCode == siteType).ToList();
+                    result = result.Where(w => (w.SiteTypeCode != null && w.SiteTypeCode.ToLower() == siteType.ToLower())).ToList();
                 }
                 if (country != null)
                 {
-                    result = result.Where(w => country.Contains(w.SiteCode.Substring(0, 2))).ToList();
+                    result = result.Where(w => country.ToLower().Contains(w.SiteCode.ToLower()[..2])).ToList();
                 }
                 if (bioregion != null)
                 {
                     List<string> bioRegionTypes = await _dataContext.Set<BioRegionTypes>().Where(w => bioregion.Contains(w.BioRegionShortCode)).Select(s => s.RefBioGeoName).ToListAsync();
-                    result = result.Where(w => bioRegionTypes.Contains(w.BioRegion)).ToList();
+                    if (bioRegionTypes.Any())
+                        result = result.Where(w => bioRegionTypes.Contains(w.BioRegion)).ToList();
                 }
-                if (siteCode != null)
+                if (site != null)
                 {
-                    result = result.Where(w => w.SiteCode == siteCode).ToList();
+                    result = result.Where(w => w.SiteCode.ToLower().Contains(site.ToLower())
+                        || w.SiteName.ToLower().Contains(site.ToLower())).ToList();
                 }
-                if (siteName != null)
+                if (habitat != null)
                 {
-                    result = result.Where(w => w.SiteName == siteName).ToList();
+                    result = result.Where(w => (w.HABITATCODE != null && w.HABITATCODE.ToLower().Contains(habitat.ToLower()))
+                        || (w.HABITATNAME != null && w.HABITATNAME.ToLower().Contains(habitat.ToLower()))).ToList();
                 }
-                if (habitatCode != null)
+                if (species != null)
                 {
-                    result = result.Where(w => w.HABITATCODE.Contains(habitatCode)).ToList();
-                }
-                if (speciesCode != null)
-                {
-                    result = result.Where(w => w.SPECIESCODE.Contains(speciesCode)).ToList();
+                    result = result.Where(w => (w.SPECIESCODE != null && w.SPECIESCODE.ToLower().Contains(species.ToLower()))
+                        || (w.SPECIESNAME != null && w.SPECIESNAME.ToLower().Contains(species.ToLower()))).ToList();
                 }
 
                 List<SitesParametered> resultFinal = result.Select(c => new SitesParametered
@@ -99,36 +100,34 @@ namespace natura2000_portal_back.Services
             }
         }
 
-        public async Task<List<HabitatsParametered>> GetParameteredHabitats(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitatCode, string? habitatName)
+        public async Task<List<HabitatsParametered>> GetParameteredHabitats(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitat)
         {
             try
             {
-                List<HabitatsParameteredExtended> result = await _releaseContext.Set<HabitatsParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredHabitats").AsNoTracking().ToListAsync();
+                if (releaseId == null)
+                    releaseId = await _releaseContext.Set<Releases>().OrderByDescending(o => o.CreateDate).Select(s => s.ID).FirstOrDefaultAsync();
 
-                if (releaseId != null)
-                {
-                    result = result.Where(w => w.ReleaseId == releaseId).ToList();
-                }
+                SqlParameter param1 = new("@releaseId", releaseId);
+                List<HabitatsParameteredExtended> result = await _releaseContext.Set<HabitatsParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredHabitats @releaseId", param1).AsNoTracking().ToListAsync();
+
                 if (habitatGroup != null)
                 {
-                    result = result.Where(w => w.HabitatCode[0].ToString() == habitatGroup).ToList();
+                    result = result.Where(w => w.HabitatCode != null && w.HabitatCode[0].ToString() == habitatGroup).ToList();
                 }
                 if (country != null)
                 {
-                    result = result.Where(w => country.Contains(w.Country)).ToList();
+                    result = result.Where(w => country.ToLower().Contains(w.Country.ToLower())).ToList();
                 }
                 if (bioregion != null)
                 {
                     List<string> bioRegionTypes = await _dataContext.Set<BioRegionTypes>().Where(w => bioregion.Contains(w.BioRegionShortCode)).Select(s => s.RefBioGeoName).ToListAsync();
-                    result = result.Where(w => bioRegionTypes.Contains(w.BioRegion)).ToList();
+                    if (bioRegionTypes.Any())
+                        result = result.Where(w => bioRegionTypes.Contains(w.BioRegion)).ToList();
                 }
-                if (habitatCode != null)
+                if (habitat != null)
                 {
-                    result = result.Where(w => w.HabitatCode == habitatCode).ToList();
-                }
-                if (habitatName != null)
-                {
-                    result = result.Where(w => w.HabitatName == habitatName).ToList();
+                    result = result.Where(w => (w.HabitatCode != null && w.HabitatCode.ToLower().Contains(habitat.ToLower()))
+                        || (w.HabitatName != null && w.HabitatName.ToLower().Contains(habitat.ToLower()))).ToList();
                 }
 
                 List<HabitatsParametered> resultFinal = result.Select(c => new HabitatsParametered
@@ -148,36 +147,34 @@ namespace natura2000_portal_back.Services
             }
         }
 
-        public async Task<List<SpeciesParametered>> GetParameteredSpecies(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? speciesCode, string? speciesName)
+        public async Task<List<SpeciesParametered>> GetParameteredSpecies(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? species)
         {
             try
             {
-                List<SpeciesParameteredExtended> result = await _releaseContext.Set<SpeciesParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredSpecies").AsNoTracking().ToListAsync();
+                if (releaseId == null)
+                    releaseId = await _releaseContext.Set<Releases>().OrderByDescending(o => o.CreateDate).Select(s => s.ID).FirstOrDefaultAsync();
 
-                if (releaseId != null)
-                {
-                    result = result.Where(w => w.ReleaseId == releaseId).ToList();
-                }
+                SqlParameter param1 = new("@releaseId", releaseId);
+                List<SpeciesParameteredExtended> result = await _releaseContext.Set<SpeciesParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredSpecies @releaseId", param1).AsNoTracking().ToListAsync();
+
                 if (speciesGroup != null)
                 {
-                    result = result.Where(w => w.SpeciesGroupCode == speciesGroup).ToList();
+                    result = result.Where(w => w.SpeciesGroupCode != null && w.SpeciesGroupCode.ToLower() == speciesGroup.ToLower()).ToList();
                 }
                 if (country != null)
                 {
-                    result = result.Where(w => country.Contains(w.Country)).ToList();
+                    result = result.Where(w => country.ToLower().Contains(w.Country.ToLower())).ToList();
                 }
                 if (bioregion != null)
                 {
                     List<string> bioRegionTypes = await _dataContext.Set<BioRegionTypes>().Where(w => bioregion.Contains(w.BioRegionShortCode)).Select(s => s.RefBioGeoName).ToListAsync();
-                    result = result.Where(w => bioRegionTypes.Contains(w.BioRegion)).ToList();
+                    if (bioRegionTypes.Any())
+                        result = result.Where(w => bioRegionTypes.Contains(w.BioRegion)).ToList();
                 }
-                if (speciesCode != null)
+                if (species != null)
                 {
-                    result = result.Where(w => w.SpeciesCode == speciesCode).ToList();
-                }
-                if (speciesName != null)
-                {
-                    result = result.Where(w => w.SpeciesName == speciesName).ToList();
+                    result = result.Where(w => (w.SpeciesCode != null && w.SpeciesCode.ToLower().Contains(species.ToLower()))
+                        || (w.SpeciesName != null && w.SpeciesName.ToLower().Contains(species.ToLower()))).ToList();
                 }
 
                 List<SpeciesParametered> resultFinal = result.Select(c => new SpeciesParametered

@@ -43,12 +43,12 @@ namespace natura2000_portal_back.Controllers
         }
 
         [HttpGet("GetParameteredSites")]
-        public async Task<ActionResult<ServiceResponse<List<SitesParametered>>>> GetParameteredSites(long? releaseId, string? siteType, string? country, string? bioregion, string? siteCode, string? siteName, string? habitatCode, string? speciesCode)
+        public async Task<ActionResult<ServiceResponse<List<SitesParametered>>>> GetParameteredSites(long? releaseId, string? siteType, string? country, string? bioregion, string? site, string? habitat, string? species)
         {
             var response = new ServiceResponse<List<SitesParametered>>();
             try
             {
-                var data = await _infoService.GetParameteredSites(releaseId, siteType, country, bioregion, siteCode, siteName, habitatCode, speciesCode);
+                var data = await _infoService.GetParameteredSites(releaseId, siteType, country, bioregion, site, habitat, species);
                 response.Success = true;
                 response.Message = "";
                 response.Data = data;
@@ -66,12 +66,12 @@ namespace natura2000_portal_back.Controllers
         }
 
         [HttpGet("GetParameteredHabitats")]
-        public async Task<ActionResult<ServiceResponse<List<HabitatsParametered>>>> GetParameteredHabitats(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitatCode, string? habitatName)
+        public async Task<ActionResult<ServiceResponse<List<HabitatsParametered>>>> GetParameteredHabitats(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitat)
         {
             var response = new ServiceResponse<List<HabitatsParametered>>();
             try
             {
-                var data = await _infoService.GetParameteredHabitats(releaseId, habitatGroup, country, bioregion, habitatCode, habitatName);
+                var data = await _infoService.GetParameteredHabitats(releaseId, habitatGroup, country, bioregion, habitat);
                 response.Success = true;
                 response.Message = "";
                 response.Data = data;
@@ -89,12 +89,12 @@ namespace natura2000_portal_back.Controllers
         }
 
         [HttpGet("GetParameteredSpecies")]
-        public async Task<ActionResult<ServiceResponse<List<SpeciesParametered>>>> GetParameteredSpecies(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? speciesCode, string? speciesName)
+        public async Task<ActionResult<ServiceResponse<List<SpeciesParametered>>>> GetParameteredSpecies(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? species)
         {
             var response = new ServiceResponse<List<SpeciesParametered>>();
             try
             {
-                var data = await _infoService.GetParameteredSpecies(releaseId, speciesGroup, country, bioregion, speciesCode, speciesName);
+                var data = await _infoService.GetParameteredSpecies(releaseId, speciesGroup, country, bioregion, species);
                 response.Success = true;
                 response.Message = "";
                 response.Data = data;

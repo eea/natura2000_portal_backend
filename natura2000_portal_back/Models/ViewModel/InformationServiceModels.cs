@@ -81,6 +81,8 @@ namespace natura2000_portal_back.Models.ViewModel
         public string? BioRegion { get; set; }
         public string? HABITATCODE { get; set; }
         public string? SPECIESCODE { get; set; }
+        public string? HABITATNAME { get; set; }
+        public string? SPECIESNAME { get; set; }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
