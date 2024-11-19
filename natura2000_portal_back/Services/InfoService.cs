@@ -185,7 +185,7 @@ namespace natura2000_portal_back.Services
                     SpeciesGroupCode = c.SpeciesGroupCode,
                     SpeciesEunisId = c.SpeciesEunisId,
                     SpeciesImageUrl = c.SpeciesImageUrl,
-                    IsSensitive = c.IsSensitive,
+                    IsSensitive = c.IsSensitive == null ? false : c.IsSensitive,
                     SitesNumber = c.SitesNumber
                 }).ToList();
 
