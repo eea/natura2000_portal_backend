@@ -99,6 +99,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public string? SpeciesGroupCode { get; set; }
         public string? SpeciesEunisId { get; set; }
         public string? SpeciesImageUrl { get; set; }
+        public Boolean? IsSentitive { get; set; } //returns true if the species is sensitive
         public int? SitesNumber { get; set; } //number of sites in which the habitat appears
 
         public static void OnModelCreating(ModelBuilder builder)
