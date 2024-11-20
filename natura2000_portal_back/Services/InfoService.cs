@@ -130,13 +130,21 @@ namespace natura2000_portal_back.Services
                         || (w.HabitatName != null && w.HabitatName.ToLower().Contains(habitat.ToLower()))).ToList();
                 }
 
-                List<HabitatsParametered> resultFinal = result.Select(c => new HabitatsParametered
+                result = result.DistinctBy(d => new { d.HabitatCode, d.Country }).ToList();
+
+                List<HabitatsParametered> resultFinal = new List<HabitatsParametered>();
+
+                foreach (HabitatsParameteredExtended c in result)
                 {
-                    HabitatCode = c.HabitatCode,
-                    HabitatName = c.HabitatName,
-                    HabitatImageUrl = c.HabitatImageUrl,
-                    SitesNumber = c.SitesNumber
-                }).ToList();
+                    int sitesNumber = result.Where(w => w.HabitatCode == c.HabitatCode).Sum(s => Convert.ToInt32(s.SitesNumber));
+                    resultFinal.Add(new HabitatsParametered
+                    {
+                        HabitatCode = c.HabitatCode,
+                        HabitatName = c.HabitatName,
+                        HabitatImageUrl = c.HabitatImageUrl,
+                        SitesNumber = sitesNumber
+                    });
+                }
 
                 return resultFinal.DistinctBy(d => d.HabitatCode).ToList();
             }
@@ -177,17 +185,25 @@ namespace natura2000_portal_back.Services
                         || (w.SpeciesName != null && w.SpeciesName.ToLower().Contains(species.ToLower()))).ToList();
                 }
 
-                List<SpeciesParametered> resultFinal = result.Select(c => new SpeciesParametered
+                result = result.DistinctBy(d => new { d.SpeciesCode, d.Country }).ToList();
+
+                List<SpeciesParametered> resultFinal = new List<SpeciesParametered>();
+
+                foreach (SpeciesParameteredExtended c in result)
                 {
-                    SpeciesCode = c.SpeciesCode,
-                    SpeciesName = c.SpeciesName,
-                    SpeciesScientificName = c.SpeciesScientificName,
-                    SpeciesGroupCode = c.SpeciesGroupCode,
-                    SpeciesEunisId = c.SpeciesEunisId,
-                    SpeciesImageUrl = c.SpeciesImageUrl,
-                    IsSensitive = c.IsSensitive == null ? false : c.IsSensitive,
-                    SitesNumber = c.SitesNumber
-                }).ToList();
+                    int sitesNumber = result.Where(w => w.SpeciesCode == c.SpeciesCode).Sum(s => Convert.ToInt32(s.SitesNumber));
+                    resultFinal.Add(new SpeciesParametered
+                    {
+                        SpeciesCode = c.SpeciesCode,
+                        SpeciesName = c.SpeciesName,
+                        SpeciesScientificName = c.SpeciesScientificName,
+                        SpeciesGroupCode = c.SpeciesGroupCode,
+                        SpeciesEunisId = c.SpeciesEunisId,
+                        SpeciesImageUrl = c.SpeciesImageUrl,
+                        IsSensitive = c.IsSensitive == null ? false : c.IsSensitive,
+                        SitesNumber = sitesNumber
+                    });
+                }
 
                 return resultFinal.DistinctBy(d => d.SpeciesCode).ToList();
             }
