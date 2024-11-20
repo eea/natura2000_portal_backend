@@ -88,7 +88,7 @@ namespace natura2000_portal_back.Services
                     SiteArea = c.SiteArea,
                     HabitatsNumber = c.HabitatsNumber,
                     SpeciesNumber = c.SpeciesNumber,
-                    IsSentitive = c.IsSentitive == null ? false : c.IsSentitive
+                    IsSensitive = c.IsSensitive == null ? false : c.IsSensitive
                 }).ToList();
 
                 return resultFinal.DistinctBy(d => d.SiteCode).ToList();
@@ -185,6 +185,7 @@ namespace natura2000_portal_back.Services
                     SpeciesGroupCode = c.SpeciesGroupCode,
                     SpeciesEunisId = c.SpeciesEunisId,
                     SpeciesImageUrl = c.SpeciesImageUrl,
+                    IsSensitive = c.IsSensitive == null ? false : c.IsSensitive,
                     SitesNumber = c.SitesNumber
                 }).ToList();
 

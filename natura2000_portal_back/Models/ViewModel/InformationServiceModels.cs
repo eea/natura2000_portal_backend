@@ -66,7 +66,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public decimal? SiteArea { get; set; }
         public int? HabitatsNumber { get; set; } //number of habitats that appear on the site
         public int? SpeciesNumber { get; set; } //number of species that appear on the site
-        public Boolean? IsSentitive { get; set; } //returns true if the site contains sensitive species
+        public Boolean? IsSensitive { get; set; } //returns true if the site contains sensitive species
 
         public static void OnModelCreating(ModelBuilder builder)
         {
@@ -99,6 +99,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public string? SpeciesGroupCode { get; set; }
         public string? SpeciesEunisId { get; set; }
         public string? SpeciesImageUrl { get; set; }
+        public Boolean? IsSensitive { get; set; } //returns true if the species is sensitive
         public int? SitesNumber { get; set; } //number of sites in which the habitat appears
 
         public static void OnModelCreating(ModelBuilder builder)
