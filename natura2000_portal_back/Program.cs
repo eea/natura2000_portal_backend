@@ -29,6 +29,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddScoped<IDownloadService, DownloadService>();
 builder.Services.AddScoped<IInfoService, InfoService>();
 
 //builder.Services.AddHostedService<FMELongRunningService>();
