@@ -38,7 +38,7 @@ namespace natura2000_portal_back.Services
                    _appSettings.Value.fme_service_sac_computation.workspace);
 
                 string body = string.Format(@"{{""publishedParameters"":[" +
-                    @"{{""name"":""ReleaseId"",""value"":{0}}}," +
+                    @"{{""name"":""VersionId"",""value"":{0}}}," +
                     @"{{""name"":""DestDatasetFolder"",""value"":""{1}""}}," +
                     @"{{""name"":""OutputName"",""value"": ""{2}""}}," +
                     @"{{""name"":""Environment"",""value"": ""{3}""}}," +
