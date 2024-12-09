@@ -43,12 +43,12 @@ namespace natura2000_portal_back.Controllers
         }
 
         [HttpGet("GetParameteredSites")]
-        public async Task<ActionResult<ServiceResponse<List<SitesParametered>>>> GetParameteredSites(long? releaseId, string? siteType, string? country, string? bioregion, string? site, string? habitat, string? species)
+        public async Task<ActionResult<ServiceResponse<List<SitesParametered>>>> GetParameteredSites(long? releaseId, string? siteType, string? country, string? bioregion, string? site, string? habitat, string? species, Boolean? sensitive)
         {
             var response = new ServiceResponse<List<SitesParametered>>();
             try
             {
-                var data = await _infoService.GetParameteredSites(releaseId, siteType, country, bioregion, site, habitat, species);
+                var data = await _infoService.GetParameteredSites(releaseId, siteType, country, bioregion, site, habitat, species, sensitive);
                 response.Success = true;
                 response.Message = "";
                 response.Data = data;
@@ -89,12 +89,12 @@ namespace natura2000_portal_back.Controllers
         }
 
         [HttpGet("GetParameteredSpecies")]
-        public async Task<ActionResult<ServiceResponse<List<SpeciesParametered>>>> GetParameteredSpecies(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? species)
+        public async Task<ActionResult<ServiceResponse<List<SpeciesParametered>>>> GetParameteredSpecies(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? species, Boolean? sensitive)
         {
             var response = new ServiceResponse<List<SpeciesParametered>>();
             try
             {
-                var data = await _infoService.GetParameteredSpecies(releaseId, speciesGroup, country, bioregion, species);
+                var data = await _infoService.GetParameteredSpecies(releaseId, speciesGroup, country, bioregion, species, sensitive);
                 response.Success = true;
                 response.Message = "";
                 response.Data = data;

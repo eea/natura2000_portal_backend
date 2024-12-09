@@ -40,7 +40,7 @@ namespace natura2000_portal_back.Services
             }
         }
 
-        public async Task<List<SitesParametered>> GetParameteredSites(long? releaseId, string? siteType, string? country, string? bioregion, string? site, string? habitat, string? species)
+        public async Task<List<SitesParametered>> GetParameteredSites(long? releaseId, string? siteType, string? country, string? bioregion, string? site, string? habitat, string? species, Boolean? sensitive)
         {
             try
             {
@@ -78,6 +78,10 @@ namespace natura2000_portal_back.Services
                 {
                     result = result.Where(w => (w.SPECIESCODE != null && w.SPECIESCODE.ToLower().Contains(species.ToLower()))
                         || (w.SPECIESNAME != null && w.SPECIESNAME.ToLower().Contains(species.ToLower()))).ToList();
+                }
+                if (sensitive != null && sensitive == true)
+                {
+                    result = result.Where(w => w.IsSensitive != null && w.IsSensitive == true).ToList();
                 }
 
                 List<SitesParametered> resultFinal = result.Select(c => new SitesParametered
@@ -155,7 +159,7 @@ namespace natura2000_portal_back.Services
             }
         }
 
-        public async Task<List<SpeciesParametered>> GetParameteredSpecies(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? species)
+        public async Task<List<SpeciesParametered>> GetParameteredSpecies(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? species, Boolean? sensitive)
         {
             try
             {
@@ -184,6 +188,10 @@ namespace natura2000_portal_back.Services
                     result = result.Where(w => (w.SpeciesCode != null && w.SpeciesCode.ToLower().Contains(species.ToLower()))
                         || (w.SpeciesName != null && w.SpeciesName.ToLower().Contains(species.ToLower()))).ToList();
                 }
+                if (sensitive != null && sensitive == true)
+                {
+                    result = result.Where(w => w.IsSensitive != null && w.IsSensitive == true).ToList();
+                }
 
                 result = result.DistinctBy(d => new { d.SpeciesCode, d.Country }).ToList();
 
@@ -192,6 +200,7 @@ namespace natura2000_portal_back.Services
                 foreach (SpeciesParameteredExtended c in result)
                 {
                     int sitesNumber = result.Where(w => w.SpeciesCode == c.SpeciesCode).Sum(s => Convert.ToInt32(s.SitesNumber));
+                    int sitesNumberSensitive = result.Where(w => w.SpeciesCode == c.SpeciesCode).Sum(s => Convert.ToInt32(s.SitesNumberSensitive));
                     resultFinal.Add(new SpeciesParametered
                     {
                         SpeciesCode = c.SpeciesCode,
@@ -201,7 +210,8 @@ namespace natura2000_portal_back.Services
                         SpeciesEunisId = c.SpeciesEunisId,
                         SpeciesImageUrl = c.SpeciesImageUrl,
                         IsSensitive = c.IsSensitive == null ? false : c.IsSensitive,
-                        SitesNumber = sitesNumber
+                        SitesNumber = sitesNumber,
+                        SitesNumberSensitive = sitesNumberSensitive
                     });
                 }
 
