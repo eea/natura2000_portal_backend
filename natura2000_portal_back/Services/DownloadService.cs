@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using natura2000_portal_back.Data;
 using natura2000_portal_back.Models;
+using natura2000_portal_back.Models.ViewModel;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
@@ -13,12 +14,14 @@ namespace natura2000_portal_back.Services
         private readonly N2KBackboneContext _dataContext;
         private readonly N2KReleasesContext _releaseContext;
         private readonly IOptions<ConfigSettings> _appSettings;
+        private readonly IInfoService _infoService;
 
-        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, IOptions<ConfigSettings> app)
+        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, IOptions<ConfigSettings> app, IInfoService infoService)
         {
             _dataContext = dataContext;
             _releaseContext = releaseContext;
             _appSettings = app;
+            _infoService = infoService;
         }
 
         public async Task<int> ComputingSAC(long releaseId, string email)
@@ -73,5 +76,97 @@ namespace natura2000_portal_back.Services
                 client.Dispose();
             }
         }
+
+        public async Task<int> HabitatsSearchResults(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitat)
+        {
+            List<HabitatsParametered> data = await _infoService.GetParameteredHabitats(releaseId, habitatGroup, country, bioregion, habitat);
+
+            string tableName = "TempResultsHabitats_" + DateTime.Now.ToString("yyyy-MM-dd_H-mm-ss");
+            string query = @"CREATE TABLE [dbo].[" + tableName + @"](
+	            [HabitatCode] [nvarchar](6) NULL,
+	            [HabitatName] [nvarchar](255) NULL,
+	            [SitesNumber] [int] NULL
+            )";
+            try
+            {
+                await _releaseContext.Database.ExecuteSqlRawAsync(query);
+                foreach (HabitatsParametered line in data)
+                {
+                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([HabitatCode],[HabitatName],[SitesNumber]) VALUES('" + line.HabitatCode + "','" + line.HabitatName + "'," + line.SitesNumber + ")";
+                    await _releaseContext.Database.ExecuteSqlRawAsync(insertQuery);
+                }
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "HabitatsSearchResults", "", _dataContext.Database.GetConnectionString());
+            }
+
+            return 1;
+        }
+
+        public async Task<int> SitesSearchResults(long? releaseId, string? siteType, string? country, string? bioregion, string? site, string? habitat, string? species, Boolean? sensitive)
+        {
+            List<SitesParametered> data = await _infoService.GetParameteredSites(releaseId, siteType, country, bioregion, site, habitat, species, sensitive);
+
+            string tableName = "TempResultsSites_" + DateTime.Now.ToString("yyyy-MM-dd_H-mm-ss");
+            string query = @"CREATE TABLE [dbo].[" + tableName + @"](
+	            [SiteCode] [nvarchar](9) NULL,
+	            [SiteName] [nvarchar](250) NULL,
+	            [SiteType] [nvarchar](1) NULL,
+	            [Area] [nvarchar](50) NULL,
+	            [HabitatsNumber] [int] NULL,
+	            [SpeciesNumber] [int] NULL,
+	            [SensitiveSpecies] [nvarchar](5) NULL
+            )";
+            try
+            {
+                await _releaseContext.Database.ExecuteSqlRawAsync(query);
+                foreach (SitesParametered line in data)
+                {
+                    string sensitiveText = line.IsSensitive == true ? "Yes" : "No";
+                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([SiteCode],[SiteName],[SiteType],[Area],[HabitatsNumber],[SpeciesNumber],[SensitiveSpecies]) VALUES('" + line.SiteCode + "','" + line.SiteName + "','" + line.SiteTypeCode + "'," + line.SiteArea.ToString().Replace(",", ".") + "," + line.HabitatsNumber + "," + line.SpeciesNumber + ",'" + sensitiveText + "')";
+                    await _releaseContext.Database.ExecuteSqlRawAsync(insertQuery);
+                }
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "SitesSearchResults", "", _dataContext.Database.GetConnectionString());
+            }
+
+            return 1;
+        }
+
+        public async Task<int> SpeciesSearchResults(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? species, Boolean? sensitive)
+        {
+            List<SpeciesParametered> data = await _infoService.GetParameteredSpecies(releaseId, speciesGroup, country, bioregion, species, sensitive);
+
+            string tableName = "TempResultsSpecies_" + DateTime.Now.ToString("yyyy-MM-dd_H-mm-ss");
+            string query = @"CREATE TABLE [dbo].[" + tableName + @"](
+	            [SpeciesCode] [nvarchar](10) NULL,
+	            [SpeciesScientificName] [nvarchar](150) NULL,
+	            [SpeciesCommonName] [nvarchar](150) NULL,
+	            [SpeciesGroup] [nvarchar](255) NULL,
+	            [SitesNumber] [int] NULL,
+	            [SitesNumberSensitive] [int] NULL,
+	            [SensitiveSpecies] [nvarchar](5) NULL
+            )";
+            try
+            {
+                await _releaseContext.Database.ExecuteSqlRawAsync(query);
+                foreach (SpeciesParametered line in data)
+                {
+                    string sensitiveText = line.IsSensitive == true ? "Yes" : "No";
+                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([SpeciesCode],[SpeciesScientificName],[SpeciesCommonName],[SpeciesGroup],[SitesNumber],[SitesNumberSensitive],[SensitiveSpecies]) VALUES('" + line.SpeciesCode + "','" + line.SpeciesScientificName + "','" + line.SpeciesName + "','" + line.SpeciesGroupCode + "'," + line.SitesNumber + "," + line.SitesNumberSensitive + ",'" + sensitiveText + "')";
+                    await _releaseContext.Database.ExecuteSqlRawAsync(insertQuery);
+                }
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "SpeciesSearchResults", "", _dataContext.Database.GetConnectionString());
+            }
+
+            return 1;
+        }
+
     }
 }
