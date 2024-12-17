@@ -40,5 +40,59 @@ namespace natura2000_portal_back.Controllers
                 return Ok(response);
             }
         }
+
+        [HttpGet("HabitatsSearchResults")]
+        public async Task<ActionResult<ServiceResponse<FileContentResult>>> HabitatsSearchResults(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitat)
+        {
+            ServiceResponse<FileContentResult> response = new();
+            try
+            {
+                return await _downloadService.HabitatsSearchResults(releaseId, habitatGroup, country, bioregion, habitat);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = null;
+                return Ok(response);
+            }
+        }
+
+        [HttpGet("SitesSearchResults")]
+        public async Task<ActionResult<ServiceResponse<FileContentResult>>> SitesSearchResults(long? releaseId, string? siteType, string? country, string? bioregion, string? site, string? habitat, string? species, Boolean? sensitive)
+        {
+            ServiceResponse<FileContentResult> response = new();
+            try
+            {
+                return await _downloadService.SitesSearchResults(releaseId, siteType, country, bioregion, site, habitat, species, sensitive);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = null;
+                return Ok(response);
+            }
+        }
+
+        [HttpGet("SpeciesSearchResults")]
+        public async Task<ActionResult<ServiceResponse<FileContentResult>>> SpeciesSearchResults(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? species, Boolean? sensitive)
+        {
+            ServiceResponse<FileContentResult> response = new();
+            try
+            {
+                return await _downloadService.SpeciesSearchResults(releaseId, speciesGroup, country, bioregion, species, sensitive);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = null;
+                return Ok(response);
+            }
+        }
     }
 }
