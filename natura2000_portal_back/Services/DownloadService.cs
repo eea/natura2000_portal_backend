@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using natura2000_portal_back.Data;
 using natura2000_portal_back.Models;
@@ -77,7 +78,7 @@ namespace natura2000_portal_back.Services
             }
         }
 
-        public async Task<int> HabitatsSearchResults(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitat)
+        public async Task<FileContentResult> HabitatsSearchResults(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitat)
         {
             List<HabitatsParametered> data = await _infoService.GetParameteredHabitats(releaseId, habitatGroup, country, bioregion, habitat);
 
@@ -98,13 +99,37 @@ namespace natura2000_portal_back.Services
             }
             catch (Exception ex)
             {
-                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "HabitatsSearchResults", "", _dataContext.Database.GetConnectionString());
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - HabitatsSearchResults", "", _dataContext.Database.GetConnectionString());
             }
 
-            return 1;
+            HttpClient client = new();
+            String serverUrl = String.Format(_appSettings.Value.fme_service_results_download, _appSettings.Value.Environment, "sites", tableName, _appSettings.Value.fme_security_token);
+            try
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("Start HabitatsSearchResults generation"), "DownloadService - HabitatsSearchResults", "", _dataContext.Database.GetConnectionString());
+                client.Timeout = TimeSpan.FromHours(5);
+                Task<HttpResponseMessage> response = client.GetAsync(serverUrl, HttpCompletionOption.ResponseHeadersRead);
+                Stream content = await response.Result.Content.ReadAsStreamAsync(); //  .ReadAsStringAsync();
+                string filename = response.Result.Content.Headers.ContentDisposition.FileNameStar;
+
+                return new FileContentResult(StreamToByteArray(content), "application/octet-stream")
+                {
+                    FileDownloadName = filename
+                };
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - HabitatsSearchResults", "", _dataContext.Database.GetConnectionString());
+                return null;
+            }
+            finally
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("End HabitatsSearchResults generation"), "DownloadService - HabitatsSearchResults", "", _dataContext.Database.GetConnectionString());
+                client.Dispose();
+            }
         }
 
-        public async Task<int> SitesSearchResults(long? releaseId, string? siteType, string? country, string? bioregion, string? site, string? habitat, string? species, Boolean? sensitive)
+        public async Task<FileContentResult> SitesSearchResults(long? releaseId, string? siteType, string? country, string? bioregion, string? site, string? habitat, string? species, Boolean? sensitive)
         {
             List<SitesParametered> data = await _infoService.GetParameteredSites(releaseId, siteType, country, bioregion, site, habitat, species, sensitive);
 
@@ -130,13 +155,37 @@ namespace natura2000_portal_back.Services
             }
             catch (Exception ex)
             {
-                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "SitesSearchResults", "", _dataContext.Database.GetConnectionString());
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - SitesSearchResults", "", _dataContext.Database.GetConnectionString());
             }
 
-            return 1;
+            HttpClient client = new();
+            String serverUrl = String.Format(_appSettings.Value.fme_service_results_download, _appSettings.Value.Environment, "sites", tableName, _appSettings.Value.fme_security_token);
+            try
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("Start SitesSearchResults generation"), "DownloadService - SitesSearchResults", "", _dataContext.Database.GetConnectionString());
+                client.Timeout = TimeSpan.FromHours(5);
+                Task<HttpResponseMessage> response = client.GetAsync(serverUrl, HttpCompletionOption.ResponseHeadersRead);
+                Stream content = await response.Result.Content.ReadAsStreamAsync(); //  .ReadAsStringAsync();
+                string filename = response.Result.Content.Headers.ContentDisposition.FileNameStar;
+
+                return new FileContentResult(StreamToByteArray(content), "application/octet-stream")
+                {
+                    FileDownloadName = filename
+                };
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - SitesSearchResults", "", _dataContext.Database.GetConnectionString());
+                return null;
+            }
+            finally
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("End SitesSearchResults generation"), "DownloadService - SitesSearchResults", "", _dataContext.Database.GetConnectionString());
+                client.Dispose();
+            }
         }
 
-        public async Task<int> SpeciesSearchResults(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? species, Boolean? sensitive)
+        public async Task<FileContentResult> SpeciesSearchResults(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? species, Boolean? sensitive)
         {
             List<SpeciesParametered> data = await _infoService.GetParameteredSpecies(releaseId, speciesGroup, country, bioregion, species, sensitive);
 
@@ -162,11 +211,48 @@ namespace natura2000_portal_back.Services
             }
             catch (Exception ex)
             {
-                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "SpeciesSearchResults", "", _dataContext.Database.GetConnectionString());
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - SpeciesSearchResults", "", _dataContext.Database.GetConnectionString());
             }
 
-            return 1;
+            HttpClient client = new();
+            String serverUrl = String.Format(_appSettings.Value.fme_service_results_download, _appSettings.Value.Environment, "sites", tableName, _appSettings.Value.fme_security_token);
+            try
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("Start SpeciesSearchResults generation"), "DownloadService - SpeciesSearchResults", "", _dataContext.Database.GetConnectionString());
+                client.Timeout = TimeSpan.FromHours(5);
+                Task<HttpResponseMessage> response = client.GetAsync(serverUrl, HttpCompletionOption.ResponseHeadersRead);
+                Stream content = await response.Result.Content.ReadAsStreamAsync(); //  .ReadAsStringAsync();
+                string filename = response.Result.Content.Headers.ContentDisposition.FileNameStar;
+
+                return new FileContentResult(StreamToByteArray(content), "application/octet-stream")
+                {
+                    FileDownloadName = filename
+                };
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - SpeciesSearchResults", "", _dataContext.Database.GetConnectionString());
+                return null;
+            }
+            finally
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("End SpeciesSearchResults generation"), "DownloadService - SpeciesSearchResults", "", _dataContext.Database.GetConnectionString());
+                client.Dispose();
+            }
         }
 
+        private byte[] StreamToByteArray(Stream input)
+        {
+            byte[] buffer = new byte[16 * 1024];
+            using (MemoryStream ms = new())
+            {
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    ms.Write(buffer, 0, read);
+                }
+                return ms.ToArray();
+            }
+        }
     }
 }
