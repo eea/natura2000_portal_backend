@@ -103,7 +103,7 @@ namespace natura2000_portal_back.Services
             }
 
             HttpClient client = new();
-            String serverUrl = String.Format(_appSettings.Value.fme_service_results_download, _appSettings.Value.Environment, "sites", tableName, _appSettings.Value.fme_security_token);
+            String serverUrl = String.Format(_appSettings.Value.fme_service_results_download, _appSettings.Value.Environment, "habitats", tableName, _appSettings.Value.fme_security_token);
             try
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("Start HabitatsSearchResults generation"), "DownloadService - HabitatsSearchResults", "", _dataContext.Database.GetConnectionString());
@@ -215,7 +215,7 @@ namespace natura2000_portal_back.Services
             }
 
             HttpClient client = new();
-            String serverUrl = String.Format(_appSettings.Value.fme_service_results_download, _appSettings.Value.Environment, "sites", tableName, _appSettings.Value.fme_security_token);
+            String serverUrl = String.Format(_appSettings.Value.fme_service_results_download, _appSettings.Value.Environment, "species", tableName, _appSettings.Value.fme_security_token);
             try
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("Start SpeciesSearchResults generation"), "DownloadService - SpeciesSearchResults", "", _dataContext.Database.GetConnectionString());
