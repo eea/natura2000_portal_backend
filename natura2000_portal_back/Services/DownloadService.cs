@@ -93,7 +93,7 @@ namespace natura2000_portal_back.Services
                 await _releaseContext.Database.ExecuteSqlRawAsync(query);
                 foreach (HabitatsParametered line in data)
                 {
-                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([HabitatCode],[HabitatName],[SitesNumber]) VALUES('" + line.HabitatCode + "','" + line.HabitatName + "'," + line.SitesNumber + ")";
+                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([HabitatCode],[HabitatName],[SitesNumber]) VALUES('" + line.HabitatCode + "','" + line.HabitatName.Replace("'", "''") + "'," + line.SitesNumber + ")";
                     await _releaseContext.Database.ExecuteSqlRawAsync(insertQuery);
                 }
             }
@@ -149,7 +149,7 @@ namespace natura2000_portal_back.Services
                 foreach (SitesParametered line in data)
                 {
                     string sensitiveText = line.IsSensitive == true ? "Yes" : "No";
-                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([SiteCode],[SiteName],[SiteType],[Area],[HabitatsNumber],[SpeciesNumber],[SensitiveSpecies]) VALUES('" + line.SiteCode + "','" + line.SiteName + "','" + line.SiteTypeCode + "'," + line.SiteArea.ToString().Replace(",", ".") + "," + line.HabitatsNumber + "," + line.SpeciesNumber + ",'" + sensitiveText + "')";
+                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([SiteCode],[SiteName],[SiteType],[Area],[HabitatsNumber],[SpeciesNumber],[SensitiveSpecies]) VALUES('" + line.SiteCode + "','" + line.SiteName.Replace("'", "''") + "','" + line.SiteTypeCode + "'," + line.SiteArea.ToString().Replace(",", ".") + "," + line.HabitatsNumber + "," + line.SpeciesNumber + ",'" + sensitiveText + "')";
                     await _releaseContext.Database.ExecuteSqlRawAsync(insertQuery);
                 }
             }
@@ -205,7 +205,7 @@ namespace natura2000_portal_back.Services
                 foreach (SpeciesParametered line in data)
                 {
                     string sensitiveText = line.IsSensitive == true ? "Yes" : "No";
-                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([SpeciesCode],[SpeciesScientificName],[SpeciesCommonName],[SpeciesGroup],[SitesNumber],[SitesNumberSensitive],[SensitiveSpecies]) VALUES('" + line.SpeciesCode + "','" + line.SpeciesScientificName + "','" + line.SpeciesName + "','" + line.SpeciesGroupCode + "'," + line.SitesNumber + "," + line.SitesNumberSensitive + ",'" + sensitiveText + "')";
+                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([SpeciesCode],[SpeciesScientificName],[SpeciesCommonName],[SpeciesGroup],[SitesNumber],[SitesNumberSensitive],[SensitiveSpecies]) VALUES('" + line.SpeciesCode + "','" + line.SpeciesScientificName.Replace("'", "''") + "','" + line.SpeciesName.Replace("'", "''") + "','" + line.SpeciesGroupCode + "'," + line.SitesNumber + "," + line.SitesNumberSensitive + ",'" + sensitiveText + "')";
                     await _releaseContext.Database.ExecuteSqlRawAsync(insertQuery);
                 }
             }
