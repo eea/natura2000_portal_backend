@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using natura2000_portal_back.Data;
@@ -88,19 +89,30 @@ namespace natura2000_portal_back.Services
 	            [HabitatName] [nvarchar](255) NULL,
 	            [SitesNumber] [int] NULL
             )";
+            SqlConnection con = new(_releaseContext.Database.GetConnectionString());
+            con.Open();
             try
             {
                 await _releaseContext.Database.ExecuteSqlRawAsync(query);
                 foreach (HabitatsParametered line in data)
                 {
-                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([HabitatCode],[HabitatName],[SitesNumber]) VALUES('" + line.HabitatCode + "','" + line.HabitatName.Replace("'", "''") + "'," + line.SitesNumber + ")";
-                    await _releaseContext.Database.ExecuteSqlRawAsync(insertQuery);
+                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([HabitatCode],[HabitatName],[SitesNumber])" +
+                        "VALUES(@HabitatCode,@HabitatName,@SitesNumber)";
+                    SqlCommand cmd = new(insertQuery, con);
+
+                    cmd.Parameters.AddWithValue("@HabitatCode", line.HabitatCode ?? "");
+                    cmd.Parameters.AddWithValue("@HabitatName", line.HabitatName ?? "");
+                    cmd.Parameters.AddWithValue("@SitesNumber", line.SitesNumber);
+
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
             catch (Exception ex)
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - HabitatsSearchResults", "", _dataContext.Database.GetConnectionString());
             }
+            con.Close();
+            con.Dispose();
 
             HttpClient client = new();
             String serverUrl = String.Format(_appSettings.Value.fme_service_results_download, _appSettings.Value.Environment, "habitats", tableName, _appSettings.Value.fme_security_token);
@@ -143,20 +155,36 @@ namespace natura2000_portal_back.Services
 	            [SpeciesNumber] [int] NULL,
 	            [SensitiveSpecies] [nvarchar](5) NULL
             )";
+            SqlConnection con = new(_releaseContext.Database.GetConnectionString());
+            con.Open();
             try
             {
                 await _releaseContext.Database.ExecuteSqlRawAsync(query);
                 foreach (SitesParametered line in data)
                 {
                     string sensitiveText = line.IsSensitive == true ? "Yes" : "No";
-                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([SiteCode],[SiteName],[SiteType],[Area],[HabitatsNumber],[SpeciesNumber],[SensitiveSpecies]) VALUES('" + line.SiteCode + "','" + line.SiteName.Replace("'", "''") + "','" + line.SiteTypeCode + "'," + line.SiteArea.ToString().Replace(",", ".") + "," + line.HabitatsNumber + "," + line.SpeciesNumber + ",'" + sensitiveText + "')";
-                    await _releaseContext.Database.ExecuteSqlRawAsync(insertQuery);
+                    //Added Replace("'", "''") to prevent text from breaking; Added Replace(",", ".") to prevent format issues in excel
+                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([SiteCode],[SiteName],[SiteType],[Area],[HabitatsNumber],[SpeciesNumber],[SensitiveSpecies])" +
+                        "VALUES(@SiteCode,@SiteName,@SiteType,@Area,@HabitatsNumber,@SpeciesNumber,@SensitiveSpecies)";
+                    SqlCommand cmd = new(insertQuery, con);
+
+                    cmd.Parameters.AddWithValue("@SiteCode", line.SiteCode ?? "");
+                    cmd.Parameters.AddWithValue("@SiteName", line.SiteName ?? "");
+                    cmd.Parameters.AddWithValue("@SiteType", line.SiteTypeCode ?? "");
+                    cmd.Parameters.AddWithValue("@Area", line.SiteArea.ToString().Replace(",", ".") ?? "");
+                    cmd.Parameters.AddWithValue("@HabitatsNumber", line.HabitatsNumber);
+                    cmd.Parameters.AddWithValue("@SpeciesNumber", line.SpeciesNumber);
+                    cmd.Parameters.AddWithValue("@SensitiveSpecies", sensitiveText);
+
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
             catch (Exception ex)
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - SitesSearchResults", "", _dataContext.Database.GetConnectionString());
             }
+            con.Close();
+            con.Dispose();
 
             HttpClient client = new();
             String serverUrl = String.Format(_appSettings.Value.fme_service_results_download, _appSettings.Value.Environment, "sites", tableName, _appSettings.Value.fme_security_token);
@@ -199,20 +227,35 @@ namespace natura2000_portal_back.Services
 	            [SitesNumberSensitive] [int] NULL,
 	            [SensitiveSpecies] [nvarchar](5) NULL
             )";
+            SqlConnection con = new(_releaseContext.Database.GetConnectionString());
+            con.Open();
             try
             {
                 await _releaseContext.Database.ExecuteSqlRawAsync(query);
                 foreach (SpeciesParametered line in data)
                 {
                     string sensitiveText = line.IsSensitive == true ? "Yes" : "No";
-                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([SpeciesCode],[SpeciesScientificName],[SpeciesCommonName],[SpeciesGroup],[SitesNumber],[SitesNumberSensitive],[SensitiveSpecies]) VALUES('" + line.SpeciesCode + "','" + line.SpeciesScientificName.Replace("'", "''") + "','" + line.SpeciesName.Replace("'", "''") + "','" + line.SpeciesGroupCode + "'," + line.SitesNumber + "," + line.SitesNumberSensitive + ",'" + sensitiveText + "')";
-                    await _releaseContext.Database.ExecuteSqlRawAsync(insertQuery);
+                    string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([SpeciesCode],[SpeciesScientificName],[SpeciesCommonName],[SpeciesGroup],[SitesNumber],[SitesNumberSensitive],[SensitiveSpecies])" +
+                        "VALUES(@SpeciesCode,@SpeciesScientificName,@SpeciesCommonName,@SpeciesGroup,@SitesNumber,@SitesNumberSensitive,@SensitiveSpecies)";
+                    SqlCommand cmd = new(insertQuery, con);
+
+                    cmd.Parameters.AddWithValue("@SpeciesCode", line.SpeciesCode ?? "");
+                    cmd.Parameters.AddWithValue("@SpeciesScientificName", line.SpeciesScientificName ?? "");
+                    cmd.Parameters.AddWithValue("@SpeciesCommonName", line.SpeciesName ?? "");
+                    cmd.Parameters.AddWithValue("@SpeciesGroup", line.SpeciesGroupCode ?? "");
+                    cmd.Parameters.AddWithValue("@SitesNumber", line.SitesNumber);
+                    cmd.Parameters.AddWithValue("@SitesNumberSensitive", line.SitesNumberSensitive);
+                    cmd.Parameters.AddWithValue("@SensitiveSpecies", sensitiveText);
+
+                    await cmd.ExecuteNonQueryAsync();
                 }
             }
             catch (Exception ex)
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - SpeciesSearchResults", "", _dataContext.Database.GetConnectionString());
             }
+            con.Close();
+            con.Dispose();
 
             HttpClient client = new();
             String serverUrl = String.Format(_appSettings.Value.fme_service_results_download, _appSettings.Value.Environment, "species", tableName, _appSettings.Value.fme_security_token);
