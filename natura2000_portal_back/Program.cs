@@ -31,6 +31,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddScoped<IDownloadService, DownloadService>();
 builder.Services.AddScoped<IInfoService, InfoService>();
+builder.Services.AddScoped<ISDFService, SDFService>();
 
 //builder.Services.AddHostedService<FMELongRunningService>();
 
