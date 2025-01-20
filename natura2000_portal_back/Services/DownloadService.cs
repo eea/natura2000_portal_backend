@@ -2,12 +2,15 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.VisualBasic.FileIO;
 using natura2000_portal_back.Data;
 using natura2000_portal_back.Models;
+using natura2000_portal_back.Models.release_db;
 using natura2000_portal_back.Models.ViewModel;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
+using System.Text.RegularExpressions;
 
 namespace natura2000_portal_back.Services
 {
@@ -281,6 +284,33 @@ namespace natura2000_portal_back.Services
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("End SpeciesSearchResults generation"), "DownloadService - SpeciesSearchResults", "", _dataContext.Database.GetConnectionString());
                 client.Dispose();
+            }
+        }
+
+
+        public async Task<FileContentResult> DownloadFromCwsfiles(long? releaseId)
+        {
+            try
+            {
+                string path_name = @"\\cwsfileserver.eea.dmz1\projects\Nature\Biodiversity\Natura2000Backbone\Releases\Official release end2021\Official release end2021_MDB_Public.zip";
+               
+
+                var file_bytes = await System.IO.File.ReadAllBytesAsync(path_name);
+                return new FileContentResult(file_bytes, "application/octet-stream")
+                {
+                    FileDownloadName = "Official release end2021_MDB_Public.zip"
+                }; 
+            }
+            catch (Exception ex)
+            {
+                throw;
+                //await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - DownloadFromCwsfiles", "", _dataContext.Database.GetConnectionString());
+                //return null;
+            }
+            finally
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("End DownloadFromCwsfiles"), "DownloadService - SpeciesSearchResults", "", _dataContext.Database.GetConnectionString());
+                
             }
         }
 
