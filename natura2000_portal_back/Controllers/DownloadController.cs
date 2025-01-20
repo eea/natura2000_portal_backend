@@ -94,5 +94,29 @@ namespace natura2000_portal_back.Controllers
                 return Ok(response);
             }
         }
+
+
+        [HttpGet("DownloadFromCwsfiles")]
+        public async Task<ActionResult<ServiceResponse<FileContentResult>>> DownloadFromCwsfiles(long? releaseId)
+        {
+            ServiceResponse<FileContentResult> response = new();
+            try
+            {
+                return await _downloadService.DownloadFromCwsfiles(releaseId);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = null;
+                return Ok(response);
+            }
+        }
+
+
+        
+
+
     }
 }
