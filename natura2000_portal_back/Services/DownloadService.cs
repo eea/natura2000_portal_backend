@@ -292,16 +292,15 @@ namespace natura2000_portal_back.Services
         {
             try
             {
-                string userName = System.Security.Principal.WindowsIdentity.GetCurrent().Name;
                 string path_name = @"\\cwsfileserver.eea.dmz1\projects\Nature\Biodiversity\Natura2000Backbone\Releases\Official release end2021\Official release end2021_MDB_Public.zip";
-                path_name = string.Format(@"C:\Proyectos\N2kBackbone\Code\{0}.txt", userName);
+                //path_name = string.Format(@"C:\Proyectos\N2kBackbone\Code\{0}.txt", userName);
 
 
                 var file_bytes = await System.IO.File.ReadAllBytesAsync(path_name);
                 return new FileContentResult(file_bytes, "application/octet-stream")
                 {
-                    //FileDownloadName = "Official release end2021_MDB_Public.zip"
-                    FileDownloadName = string.Format("{0}.zip",userName)
+                    FileDownloadName = "Official release end2021_MDB_Public.zip"
+                    //FileDownloadName = string.Format("{0}.zip",userName)
                 }; 
             }
             catch (Exception ex)
