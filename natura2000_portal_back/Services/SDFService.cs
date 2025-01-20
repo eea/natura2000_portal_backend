@@ -193,6 +193,7 @@ namespace natura2000_portal_back.Services
                             temp.NP = (h.NON_PRESENCE_IN_SITE == 1) ? booleanChecked : booleanUnchecked;
                         result.EcologicalInformation.HabitatTypes.Add(temp);
                     });
+                    result.EcologicalInformation.HabitatTypes = result.EcologicalInformation.HabitatTypes.OrderBy(o => o.Code).ToList();
                 }
                 if (species != null && species.Count > 0)
                 {
@@ -220,6 +221,7 @@ namespace natura2000_portal_back.Services
                             temp.NP = (h.NONPRESENCEINSITE == true) ? booleanChecked : booleanUnchecked;
                         result.EcologicalInformation.Species.Add(temp);
                     });
+                    result.EcologicalInformation.Species = result.EcologicalInformation.Species.OrderBy(o => o.SpeciesName).ToList();
                 }
                 if (speciesOther != null && speciesOther.Count > 0)
                 {
@@ -251,6 +253,7 @@ namespace natura2000_portal_back.Services
                         }
                         result.EcologicalInformation.OtherSpecies.Add(temp);
                     });
+                    result.EcologicalInformation.OtherSpecies = result.EcologicalInformation.OtherSpecies.OrderBy(o => o.SpeciesName).ToList();
                 }
                 #endregion
 
