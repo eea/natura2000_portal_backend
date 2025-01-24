@@ -96,6 +96,49 @@ namespace natura2000_portal_back.Controllers
         }
 
 
+        [HttpGet("FileFinder")]
+        public async Task<ActionResult<ServiceResponse<List<string>>>> FileFinder(string section)
+        {
+            ServiceResponse<List<string>> response = new();
+            try
+            {
+                var data = await _downloadService.FileFinder(section);
+                response.Success = true;
+                response.Message = "";
+                response.Data = data;
+                response.Count = (data == null) ? 0 : data.Count;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = null;
+                return Ok(response);
+            }
+        }
+
+
+        [HttpGet("FileDownloader")]
+        public async Task<ActionResult<ServiceResponse<FileContentResult>>> FileDownloader(string section, string filename)
+        {
+            ServiceResponse<FileContentResult> response = new();
+            try
+            {
+                return await _downloadService.FileDownloader(section, filename);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = null;
+                return Ok(response);
+            }
+        }
+
+
         [HttpGet("DownloadFromCwsfiles")]
         public async Task<ActionResult<ServiceResponse<FileContentResult>>> DownloadFromCwsfiles(long? releaseId)
         {
@@ -115,7 +158,7 @@ namespace natura2000_portal_back.Controllers
         }
 
 
-        
+
 
 
     }

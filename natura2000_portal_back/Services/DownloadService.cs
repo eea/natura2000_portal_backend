@@ -2,15 +2,12 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualBasic.FileIO;
 using natura2000_portal_back.Data;
 using natura2000_portal_back.Models;
-using natura2000_portal_back.Models.release_db;
 using natura2000_portal_back.Models.ViewModel;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.RegularExpressions;
 
 namespace natura2000_portal_back.Services
 {
@@ -287,6 +284,51 @@ namespace natura2000_portal_back.Services
             }
         }
 
+        public async Task<List<string>> FileFinder(string section)
+        {
+            List<string> result = new();
+            try
+            {
+                string path = _appSettings.Value.dowloads.base_url + "\\" + section;
+
+                if (Directory.Exists(path))
+                {
+                    // Recurse into subdirectories of this directory.
+                    string[] subdirectoryEntries = Directory.GetDirectories(path);
+                    foreach (string subdirectory in subdirectoryEntries)
+                    {
+                        // Process the list of files found in the directory.
+                        string[] fileEntries = Directory.GetFiles(subdirectory);
+                        foreach (string fileName in fileEntries)
+                            result.Add(Path.GetFileName(subdirectory) + "\\" + Path.GetFileName(fileName));
+                    }
+                }
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - FileFinder", "", _dataContext.Database.GetConnectionString());
+                return null;
+            }
+        }
+
+        public async Task<FileContentResult> FileDownloader(string section, string filename)
+        {
+            string path = _appSettings.Value.dowloads.base_url + "\\" + section + "\\" + filename;
+            try
+            {
+                var file_bytes = await System.IO.File.ReadAllBytesAsync(path);
+                return new FileContentResult(file_bytes, "application/octet-stream")
+                {
+                    FileDownloadName = Path.GetFileName(filename)
+                };
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - FileDownloader", "", _dataContext.Database.GetConnectionString());
+                return null;
+            }
+        }
 
         public async Task<FileContentResult> DownloadFromCwsfiles(long? releaseId)
         {
@@ -301,7 +343,7 @@ namespace natura2000_portal_back.Services
                 {
                     FileDownloadName = "Official release end2021_MDB_Public.zip"
                     //FileDownloadName = string.Format("{0}.zip",userName)
-                }; 
+                };
             }
             catch (Exception ex)
             {
@@ -312,7 +354,7 @@ namespace natura2000_portal_back.Services
             finally
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("End DownloadFromCwsfiles"), "DownloadService - SpeciesSearchResults", "", _dataContext.Database.GetConnectionString());
-                
+
             }
         }
 
