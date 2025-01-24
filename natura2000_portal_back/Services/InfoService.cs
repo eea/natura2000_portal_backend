@@ -52,7 +52,7 @@ namespace natura2000_portal_back.Services
 
                 if (siteType != null)
                 {
-                    result = result.Where(w => (w.SiteTypeCode != null && w.SiteTypeCode.ToLower() == siteType.ToLower())).ToList();
+                    result = result.Where(w => (w.SiteTypeCode != null && siteType.ToLower().Contains(w.SiteTypeCode.ToLower()))).ToList();
                 }
                 if (country != null)
                 {
