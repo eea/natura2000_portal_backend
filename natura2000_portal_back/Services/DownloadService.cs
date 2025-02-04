@@ -300,7 +300,7 @@ namespace natura2000_portal_back.Services
                         // Process the list of files found in the directory.
                         DirectoryInfo di = new DirectoryInfo(subdirectory);
                         FileSystemInfo[] files = di.GetFileSystemInfos();
-                        List<System.IO.FileSystemInfo> fileEntries = files.OrderByDescending(f => f.LastWriteTime).ToList();
+                        List<System.IO.FileSystemInfo> fileEntries = files.OrderBy(f => f.Name).ToList();
 
                         foreach (System.IO.FileSystemInfo fileName in fileEntries)
                             result.Add(Path.GetFileName(subdirectory) + "\\" + Path.GetFileName(fileName.Name));
