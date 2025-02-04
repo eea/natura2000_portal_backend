@@ -298,9 +298,12 @@ namespace natura2000_portal_back.Services
                     foreach (string subdirectory in subdirectoryEntries)
                     {
                         // Process the list of files found in the directory.
-                        string[] fileEntries = Directory.GetFiles(subdirectory);
-                        foreach (string fileName in fileEntries)
-                            result.Add(Path.GetFileName(subdirectory) + "\\" + Path.GetFileName(fileName));
+                        DirectoryInfo di = new DirectoryInfo(subdirectory);
+                        FileSystemInfo[] files = di.GetFileSystemInfos();
+                        List<System.IO.FileSystemInfo> fileEntries = files.OrderByDescending(f => f.LastWriteTime).ToList();
+
+                        foreach (System.IO.FileSystemInfo fileName in fileEntries)
+                            result.Add(Path.GetFileName(subdirectory) + "\\" + Path.GetFileName(fileName.Name));
                     }
                 }
                 return result;
