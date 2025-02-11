@@ -13,11 +13,7 @@ using natura2000_portal_back.Hubs;
 
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Host.ConfigureLogging(logging =>
-{
-    logging.ClearProviders();
-    logging.AddConsole();
-});
+builder.Logging.ClearProviders().AddConsole();
 
 // Add services to the container.
 builder.Services.AddCors();
@@ -38,7 +34,7 @@ builder.Services.AddScoped<ISDFService, SDFService>();
 builder.Services.AddResponseCompression(options =>
 {
     options.EnableForHttps = true;
-    options.MimeTypes = new[] { "text/plain", "application/json", "text/json" };
+    options.MimeTypes = new[] { "text/plain", "application/json", "text/json", "application/octet-stream", "Content-Disposition" };
 });
 builder.Services.Configure<GzipCompressionProviderOptions>
    (opt =>
@@ -107,6 +103,7 @@ app.UseCors(x => x
     .AllowAnyMethod()
     .AllowAnyHeader()
     .SetIsOriginAllowed(origin => true) // allow any origin
+    .WithExposedHeaders("Content-Disposition")
     .AllowCredentials()); // allow credentials
 
 // Configure the HTTP request pipeline.

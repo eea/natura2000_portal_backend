@@ -36,7 +36,7 @@ namespace natura2000_portal_back.Services
             catch (Exception ex)
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "InfoService - GetOfficialReleases", "", _dataContext.Database.GetConnectionString());
-                throw ex;
+                throw;
             }
         }
 
@@ -100,7 +100,7 @@ namespace natura2000_portal_back.Services
             catch (Exception ex)
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "InfoService - GetParameteredSites", "", _dataContext.Database.GetConnectionString());
-                throw ex;
+                throw;
             }
         }
 
@@ -155,7 +155,7 @@ namespace natura2000_portal_back.Services
             catch (Exception ex)
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "InfoService - GetParameteredHabitats", "", _dataContext.Database.GetConnectionString());
-                throw ex;
+                throw;
             }
         }
 
@@ -220,7 +220,7 @@ namespace natura2000_portal_back.Services
             catch (Exception ex)
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "InfoService - GetParameteredSpecies", "", _dataContext.Database.GetConnectionString());
-                throw ex;
+                throw;
             }
         }
 
@@ -252,7 +252,7 @@ namespace natura2000_portal_back.Services
             catch (Exception ex)
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "InfoService - GetLatestReleaseCounters", "", _dataContext.Database.GetConnectionString());
-                throw ex;
+                throw;
             }
         }
     }

@@ -393,7 +393,7 @@ namespace natura2000_portal_back.Services
             catch (Exception ex)
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "SDFService - GetReleaseData", "", _dataContext.Database.GetConnectionString());
-                throw ex;
+                throw;
             }
         }
     }
