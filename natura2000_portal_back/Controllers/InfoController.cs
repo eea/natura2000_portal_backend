@@ -20,12 +20,12 @@ namespace natura2000_portal_back.Controllers
         }
 
         [HttpGet("GetOfficialReleases")]
-        public async Task<ActionResult<ServiceResponse<List<ReleasesCatalog>>>> GetOfficialReleases()
+        public async Task<ActionResult<ServiceResponse<List<ReleasesCatalog>>>> GetOfficialReleases(Boolean initialValidation = false, Boolean internalViewers = false, Boolean internalBarometer = false, Boolean internalPortalSDFSensitive = false, Boolean publicViewers = false, Boolean publicBarometer = false, Boolean sdfPublic = false, Boolean naturaOnlineList = false, Boolean productsCreated = false, Boolean jediDimensionCreated = false)
         {
             var response = new ServiceResponse<List<ReleasesCatalog>>();
             try
             {
-                var data = await _infoService.GetOfficialReleases();
+                var data = await _infoService.GetOfficialReleases(initialValidation, internalViewers, internalBarometer, internalPortalSDFSensitive, publicViewers, publicBarometer, sdfPublic, naturaOnlineList, productsCreated, jediDimensionCreated);
                 response.Success = true;
                 response.Message = "";
                 response.Data = data;
