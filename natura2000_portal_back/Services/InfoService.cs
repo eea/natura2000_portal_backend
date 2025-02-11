@@ -18,12 +18,37 @@ namespace natura2000_portal_back.Services
             _releaseContext = releaseContext;
         }
 
-        public async Task<List<ReleasesCatalog>> GetOfficialReleases()
+        public async Task<List<ReleasesCatalog>> GetOfficialReleases(Boolean initialValidation, Boolean internalViewers, Boolean internalBarometer, Boolean internalPortalSDFSensitive, Boolean publicViewers, Boolean publicBarometer, Boolean sdfPublic, Boolean naturaOnlineList, Boolean productsCreated, Boolean jediDimensionCreated)
         {
             try
             {
+                List<ReleaseVisibility> releaseVisibility = await _releaseContext.Set<ReleaseVisibility>().AsNoTracking().ToListAsync();
+                #region filters
+                if (initialValidation)
+                    releaseVisibility = releaseVisibility.Where(w => w.InitialValidation == true).ToList();
+                if (internalViewers)
+                    releaseVisibility = releaseVisibility.Where(w => w.InternalViewers == true).ToList();
+                if (internalBarometer)
+                    releaseVisibility = releaseVisibility.Where(w => w.InternalBarometer == true).ToList();
+                if (internalPortalSDFSensitive)
+                    releaseVisibility = releaseVisibility.Where(w => w.InternalPortalSDFSensitive == true).ToList();
+                if (publicViewers)
+                    releaseVisibility = releaseVisibility.Where(w => w.PublicViewers == true).ToList();
+                if (publicBarometer)
+                    releaseVisibility = releaseVisibility.Where(w => w.PublicBarometer == true).ToList();
+                if (sdfPublic)
+                    releaseVisibility = releaseVisibility.Where(w => w.SDFPublic == true).ToList();
+                if (naturaOnlineList)
+                    releaseVisibility = releaseVisibility.Where(w => w.NaturaOnlineList == true).ToList();
+                if (productsCreated)
+                    releaseVisibility = releaseVisibility.Where(w => w.ProductsCreated == true).ToList();
+                if (jediDimensionCreated)
+                    releaseVisibility = releaseVisibility.Where(w => w.JediDimensionCreated == true).ToList();
+                #endregion
+                List<long> releaseVisibilityIDs = releaseVisibility.Select(s => s.ReleaseID).ToList();
+
                 return await _releaseContext.Set<Releases>()
-                    .Where(w => w.Final == true)
+                    .Where(w => w.Final == true && releaseVisibilityIDs.Contains(w.ID))
                     .AsNoTracking()
                     .Select(c => new ReleasesCatalog
                     {
