@@ -6,7 +6,9 @@
         public string repository { get; set; } = string.Empty;
         public string workspace { get; set; } = string.Empty;
     }
+#pragma warning disable CS8981 // El nombre de tipo solo contiene caracteres ASCII en minúsculas. Estos nombres pueden reservarse para el idioma.
     public class dowloads
+#pragma warning restore CS8981 // El nombre de tipo solo contiene caracteres ASCII en minúsculas. Estos nombres pueden reservarse para el idioma.
     {
         public string base_url { get; set; } = string.Empty;
         public string descriptive_report { get; set; } = string.Empty;
@@ -19,8 +21,8 @@
         public string Environment { get; set; } = string.Empty;
         public string SACComputationDestDatasetFolder { get; set; } = string.Empty;
         public string fme_security_token { get; set; } = string.Empty;
-        public fme_service_config fme_service_sac_computation { get; set; }
+        public fme_service_config? fme_service_sac_computation { get; set; }
         public string fme_service_results_download { get; set; } = string.Empty;
-        public dowloads dowloads { get; set; }
+        public dowloads? dowloads { get; set; }
     }
 }
