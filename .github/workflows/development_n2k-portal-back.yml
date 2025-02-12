@@ -27,7 +27,8 @@ jobs:
         run: |
           copy natura2000_portal_back/Configs/appsettings_dev.json natura2000_portal_back/appsettings.json  
           del natura2000_portal_back/Configs/*.json
-          rmdir natura2000_portal_back/Configs               
+          rmdir natura2000_portal_back/Configs
+          mkdir Resources
 
       - name: dotnet publish
         run: dotnet publish -c Release -o C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
