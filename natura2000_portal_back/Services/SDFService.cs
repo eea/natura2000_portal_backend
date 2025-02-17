@@ -73,7 +73,7 @@ namespace natura2000_portal_back.Services
                     return result;
 
                 List<NATURA2000SITES> sites = await _releaseContext.Set<NATURA2000SITES>().Where(a => a.SITECODE == SiteCode && releaseVisibilityIDs.Contains(a.ReleaseId)).ToListAsync();
-                if(sites.Any()) //If the site is included in a Release that complies with the filters we fetch the Site data
+                if (sites.Any()) //If the site is included in a Release that complies with the filters we fetch the Site data
                     sites = await _releaseContext.Set<NATURA2000SITES>().Where(a => a.SITECODE == SiteCode).ToListAsync();
                 NATURA2000SITES site = sites.Where(a => a.SITECODE == SiteCode && a.ReleaseId == release.ID).FirstOrDefault();
 
@@ -120,13 +120,16 @@ namespace natura2000_portal_back.Services
                     result.SiteInfo.Species = species.Count;
                 sites.ForEach(st =>
                 {
-                    ReleaseInfo temp = new()
+                    if (releaseVisibilityIDs.Contains(st.ReleaseId))
                     {
-                        ReleaseId = st.ReleaseId,
-                        ReleaseName = releases.Where(w => w.ID == st.ReleaseId).Select(s => s.Title).FirstOrDefault(),
-                        ReleaseDate = releases.Where(w => w.ID == st.ReleaseId).Select(s => s.CreateDate).FirstOrDefault()
-                    };
-                    result.SiteInfo.Releases.Add(temp);
+                        ReleaseInfo temp = new()
+                        {
+                            ReleaseId = st.ReleaseId,
+                            ReleaseName = releases.Where(w => w.ID == st.ReleaseId).Select(s => s.Title).FirstOrDefault(),
+                            ReleaseDate = releases.Where(w => w.ID == st.ReleaseId).Select(s => s.CreateDate).FirstOrDefault()
+                        };
+                        result.SiteInfo.Releases.Add(temp);
+                    }
                 });
                 #endregion
 
