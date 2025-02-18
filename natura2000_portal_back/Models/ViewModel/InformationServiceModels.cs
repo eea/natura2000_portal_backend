@@ -51,7 +51,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public string? Country { get; set; }
         public string? BioRegion { get; set; }
 
-        public static void OnModelCreating(ModelBuilder builder)
+        public static new void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<HabitatsParameteredExtended>();
         }
@@ -84,7 +84,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public string? HABITATNAME { get; set; }
         public string? SPECIESNAME { get; set; }
 
-        public static void OnModelCreating(ModelBuilder builder)
+        public static new void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<SitesParameteredExtended>();
         }
@@ -116,7 +116,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public string? Country { get; set; }
         public string? BioRegion { get; set; }
 
-        public static void OnModelCreating(ModelBuilder builder)
+        public static new void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<SpeciesParameteredExtended>();
         }
