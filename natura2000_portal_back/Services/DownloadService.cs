@@ -62,9 +62,9 @@ namespace natura2000_portal_back.Services
                 var res = await client.SendAsync(request);
                 //get the JobId 
                 var json = await res.Content.ReadAsStringAsync();                
-                var response_dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                var response_dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json);
 
-                string jobId = response_dict["id"];
+                string jobId = response_dict["id"].ToString();
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("FME SAC Computation creation launched with jobId:{0}", jobId), "DownloadService - ComputingSAC", "", _dataContext.Database.GetConnectionString());
                 return 1;
             }
