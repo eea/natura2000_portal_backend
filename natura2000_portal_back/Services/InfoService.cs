@@ -47,16 +47,25 @@ namespace natura2000_portal_back.Services
                 #endregion
                 List<long> releaseVisibilityIDs = releaseVisibility.Select(s => s.ReleaseID).ToList();
 
-                return await _releaseContext.Set<Releases>()
+                List<Releases> releases = await _releaseContext.Set<Releases>()
                     .Where(w => w.Final == true && releaseVisibilityIDs.Contains(w.ID))
                     .AsNoTracking()
-                    .Select(c => new ReleasesCatalog
+                    .ToListAsync();
+                List<ReleasesCatalog> result = new();
+                foreach (Releases c in releases)
+                {
+                    ReleasesCatalog temp = new ReleasesCatalog
                     {
                         ReleaseId = c.ID,
                         ReleaseName = c.Title,
-                        ReleaseDate = c.CreateDate
-                    })
-                    .ToListAsync();
+                        ReleaseDate = c.CreateDate,
+                        SensitiveMDB = "https://n2kportal.eea.europa.eu/n2kportal/mdbofficial/" + c.Title + "/Natura2000OfficialDescriptive.mdb",
+                        PublicMDB = releaseVisibility.Where(w => w.ReleaseID == c.ID).Select(s => s.PublicMDB).FirstOrDefault(),
+                        SHP = releaseVisibility.Where(w => w.ReleaseID == c.ID).Select(s => s.SHP).FirstOrDefault()
+                    };
+                    result.Add(temp);
+                }
+                return result;
             }
             catch (Exception ex)
             {

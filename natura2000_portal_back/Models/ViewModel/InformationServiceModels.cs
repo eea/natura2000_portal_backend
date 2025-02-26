@@ -9,6 +9,9 @@ namespace natura2000_portal_back.Models.ViewModel
         public long? ReleaseId { get; set; }
         public string? ReleaseName { get; set; }
         public DateTime? ReleaseDate { get; set; }
+        public string? SensitiveMDB { get; set; }
+        public string? PublicMDB { get; set; }
+        public string? SHP { get; set; }
 
         public static void OnModelCreating(ModelBuilder builder)
         {

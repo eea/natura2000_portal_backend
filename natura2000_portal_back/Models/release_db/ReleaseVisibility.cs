@@ -15,6 +15,8 @@ namespace natura2000_portal_back.Models.release_db
         public Boolean? NaturaOnlineList { get; set; }
         public Boolean? ProductsCreated { get; set; }
         public Boolean? JediDimensionCreated { get; set; }
+        public string? PublicMDB { get; set; }
+        public string? SHP { get; set; }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
