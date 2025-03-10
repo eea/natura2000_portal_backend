@@ -16,10 +16,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up .NET Core
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v2
         with:
           dotnet-version: '8.0.x'
-          include-prerelease: true
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
@@ -28,10 +27,10 @@ jobs:
         run: |
           copy natura2000_portal_back/Configs/appsettings_dev.json natura2000_portal_back/appsettings.json  
           del natura2000_portal_back/Configs/*.json
-          rmdir natura2000_portal_back/Configs               
+          rmdir natura2000_portal_back/Configs
 
       - name: dotnet publish
-        run: dotnet publish -c Release -o C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+        run: dotnet publish -c Release --property:PublishDir=C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4

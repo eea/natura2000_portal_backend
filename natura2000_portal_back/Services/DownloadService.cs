@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using natura2000_portal_back.Data;
 using natura2000_portal_back.Models;
 using natura2000_portal_back.Models.ViewModel;
-using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -62,9 +61,10 @@ namespace natura2000_portal_back.Services
                 //call the FME script in async 
                 var res = await client.SendAsync(request);
                 //get the JobId 
-                var json = await res.Content.ReadAsStringAsync();
-                JObject jResponse = JObject.Parse(json);
-                string jobId = jResponse.GetValue("id").ToString();
+                var json = await res.Content.ReadAsStringAsync();                
+                var response_dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+
+                string jobId = response_dict["id"].ToString();
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("FME SAC Computation creation launched with jobId:{0}", jobId), "DownloadService - ComputingSAC", "", _dataContext.Database.GetConnectionString());
                 return 1;
             }
@@ -298,9 +298,12 @@ namespace natura2000_portal_back.Services
                     foreach (string subdirectory in subdirectoryEntries)
                     {
                         // Process the list of files found in the directory.
-                        string[] fileEntries = Directory.GetFiles(subdirectory);
-                        foreach (string fileName in fileEntries)
-                            result.Add(Path.GetFileName(subdirectory) + "\\" + Path.GetFileName(fileName));
+                        DirectoryInfo di = new DirectoryInfo(subdirectory);
+                        FileSystemInfo[] files = di.GetFileSystemInfos();
+                        List<System.IO.FileSystemInfo> fileEntries = files.OrderBy(f => f.Name).ToList();
+
+                        foreach (System.IO.FileSystemInfo fileName in fileEntries)
+                            result.Add(Path.GetFileName(subdirectory) + "\\" + Path.GetFileName(fileName.Name));
                     }
                 }
                 return result;
@@ -345,7 +348,7 @@ namespace natura2000_portal_back.Services
                     //FileDownloadName = string.Format("{0}.zip",userName)
                 };
             }
-            catch (Exception ex)
+            catch 
             {
                 throw;
                 //await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - DownloadFromCwsfiles", "", _dataContext.Database.GetConnectionString());

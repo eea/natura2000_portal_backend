@@ -35,7 +35,9 @@ namespace natura2000_portal_back.Data
                     }
                 }
             }
+#pragma warning disable CS8622 // La nulabilidad de los tipos de referencia del tipo de parámetro no coincide con el delegado de destino (posiblemente debido a los atributos de nulabilidad).
             SaveChangesFailed += mySaveChangesFailed;
+#pragma warning restore CS8622 // La nulabilidad de los tipos de referencia del tipo de parámetro no coincide con el delegado de destino (posiblemente debido a los atributos de nulabilidad).
         }
 
         private void mySaveChangesFailed(object sender, SaveChangesFailedEventArgs e)

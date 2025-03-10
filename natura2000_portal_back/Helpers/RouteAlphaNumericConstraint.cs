@@ -26,7 +26,7 @@ namespace natura2000_portal_back.Helpers
             if (values == null)
                 throw new ArgumentNullException(nameof(values));
 
-            object routeValue;
+            object? routeValue;
 
             if (values.TryGetValue(routeKey, out routeValue))
             {
