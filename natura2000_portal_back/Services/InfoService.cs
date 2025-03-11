@@ -262,7 +262,9 @@ namespace natura2000_portal_back.Services
         {
             try
             {
-                Releases release = await _releaseContext.Set<Releases>().Where(w => w.Final == true).OrderByDescending(o => o.CreateDate).AsNoTracking().FirstOrDefaultAsync();
+                List<long> releaseVisibilityIDs = await _releaseContext.Set<ReleaseVisibility>().Where(w => w.InternalPortalSDFSensitive == true).Select(s => s.ReleaseID).ToListAsync();
+
+                Releases release = await _releaseContext.Set<Releases>().Where(w => w.Final == true && releaseVisibilityIDs.Contains(w.ID)).OrderByDescending(o => o.CreateDate).AsNoTracking().FirstOrDefaultAsync();
 
                 //List<NATURA2000SITES> sites = await _releaseContext.Set<NATURA2000SITES>().Where(w => w.ReleaseId == release.ID).AsNoTracking().ToListAsync();
                 List<string> sites = await _releaseContext.Set<NATURA2000SITES>().Where(w => w.ReleaseId == release.ID).Select(s => s.SITECODE.ToUpper()).AsNoTracking().ToListAsync();
