@@ -5,7 +5,6 @@ using Microsoft.Extensions.Options;
 using natura2000_portal_back.Models;
 using natura2000_portal_back.Models.backbone_db;
 using natura2000_portal_back.Models.release_db;
-using Microsoft.Data.SqlClient;
 
 namespace natura2000_portal_back.Services
 {
@@ -249,7 +248,7 @@ namespace natura2000_portal_back.Services
                             temp.NP = (h.NONPRESENCEINSITE == true) ? booleanChecked : booleanUnchecked;
                         result.EcologicalInformation.Species.Add(temp);
                     });
-                    result.EcologicalInformation.Species = result.EcologicalInformation.Species.OrderBy(o => o.SpeciesName).ToList();
+                    result.EcologicalInformation.Species = result.EcologicalInformation.Species.OrderBy(o => o.Group).ThenBy(o => o.SpeciesName).ToList();
                 }
                 if (speciesOther != null && speciesOther.Count > 0)
                 {
@@ -281,7 +280,7 @@ namespace natura2000_portal_back.Services
                         }
                         result.EcologicalInformation.OtherSpecies.Add(temp);
                     });
-                    result.EcologicalInformation.OtherSpecies = result.EcologicalInformation.OtherSpecies.OrderBy(o => o.SpeciesName).ToList();
+                    result.EcologicalInformation.OtherSpecies = result.EcologicalInformation.OtherSpecies.OrderBy(o => o.Group).ThenBy(o => o.SpeciesName).ToList();
                 }
                 #endregion
 
@@ -297,6 +296,7 @@ namespace natura2000_portal_back.Services
                         };
                         result.SiteDescription.GeneralCharacter.Add(temp);
                     });
+                    result.SiteDescription.GeneralCharacter = result.SiteDescription.GeneralCharacter.OrderBy(o => o.Code).ToList();
                 }
                 if (isImpactedBy != null && isImpactedBy.Count > 0)
                 {
@@ -318,6 +318,8 @@ namespace natura2000_portal_back.Services
                             result.SiteDescription.PositiveThreats.Add(temp);
                         }
                     });
+                    result.SiteDescription.NegativeThreats = result.SiteDescription.NegativeThreats.OrderBy(o => o.Rank).ThenBy(o => o.Impacts).ToList();
+                    result.SiteDescription.PositiveThreats = result.SiteDescription.PositiveThreats.OrderBy(o => o.Rank).ThenBy(o => o.Impacts).ToList();
                 }
                 if (siteOwnerType != null && siteOwnerType.Count > 0)
                 {
