@@ -83,7 +83,6 @@ namespace natura2000_portal_back.Services
                 List<Countries> countries = await _dataContext.Set<Countries>().AsNoTracking().ToListAsync();
                 List<DataQualityTypes> dataQualityTypes = await _dataContext.Set<DataQualityTypes>().AsNoTracking().ToListAsync();
                 List<Nuts> nuts = await _dataContext.Set<Nuts>().AsNoTracking().ToListAsync();
-                List<OwnerShipTypes> ownerShipTypes = await _dataContext.Set<OwnerShipTypes>().AsNoTracking().ToListAsync();
 
                 //Data
                 List<HABITATS> habitats = await _releaseContext.Set<HABITATS>().Where(h => h.SITECODE == SiteCode && h.ReleaseId == release.ID).AsNoTracking().ToListAsync();
@@ -104,7 +103,7 @@ namespace natura2000_portal_back.Services
                 if (site != null)
                 {
                     result.SiteInfo.SiteName = site.SITENAME;
-                    result.SiteInfo.Country = countries.Where(c => c.Code == site.COUNTRY_CODE.ToLower()).FirstOrDefault().Country;
+                    result.SiteInfo.Country = site.COUNTRY_CODE != null ? (countries.Where(c => c.Code == site.COUNTRY_CODE.ToLower()).FirstOrDefault() != null ? countries.Where(c => c.Code == site.COUNTRY_CODE.ToLower()).FirstOrDefault().Country : site.COUNTRY_CODE) : null;
                     result.SiteInfo.Directive = site.SITETYPE; //UNSURE
                     result.SiteInfo.SiteCode = SiteCode;
                     result.SiteInfo.Area = site.AREAHA;
@@ -178,7 +177,7 @@ namespace natura2000_portal_back.Services
                         Models.ViewModel.Region temp = new()
                         {
                             NUTSLevel2Code = nbs.NUTID,
-                            RegionName = nuts.Where(t => t.Code == nbs.NUTID).FirstOrDefault().Region
+                            RegionName = nbs.NUTID != null ? (nuts.Where(t => t.Code == nbs.NUTID).FirstOrDefault() != null ? nuts.Where(t => t.Code == nbs.NUTID).FirstOrDefault().Region : null) : null
                         };
                         result.SiteLocation.Region.Add(temp);
                     });
@@ -208,7 +207,7 @@ namespace natura2000_portal_back.Services
                             Code = h.HABITATCODE,
                             Cover = h.COVER_HA,
                             Cave = h.CAVES,
-                            DataQuality = h.DATAQUALITY != null ? dataQualityTypes.Where(c => c.HabitatCode == h.DATAQUALITY).FirstOrDefault().HabitatCode : null,
+                            DataQuality = h.DATAQUALITY != null ? (dataQualityTypes.Where(c => c.HabitatCode == h.DATAQUALITY).FirstOrDefault() != null ? dataQualityTypes.Where(c => c.HabitatCode == h.DATAQUALITY).FirstOrDefault().HabitatCode : null) : null,
                             Representativity = h.REPRESENTATIVITY,
                             RelativeSurface = h.RELSURFACE,
                             Conservation = h.CONSERVATION,
