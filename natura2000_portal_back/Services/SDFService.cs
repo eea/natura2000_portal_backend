@@ -295,7 +295,7 @@ namespace natura2000_portal_back.Services
                         };
                         result.SiteDescription.GeneralCharacter.Add(temp);
                     });
-                    result.SiteDescription.GeneralCharacter = result.SiteDescription.GeneralCharacter.OrderBy(o => o.Code).ToList();
+                    result.SiteDescription.GeneralCharacter = result.SiteDescription.GeneralCharacter.OrderBy(o => o.Cover).ToList();
                 }
                 if (isImpactedBy != null && isImpactedBy.Count > 0)
                 {
