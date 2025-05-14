@@ -47,12 +47,7 @@ namespace natura2000_portal_back.Controllers
             var response = new ServiceResponse<FileContentResult>();
             try
             {
-                var data = await _downloadService.SpatialDataSDI(releaseId);
-                response.Success = true;
-                response.Message = "";
-                response.Data = data;
-                response.Count = 1;
-                return Ok(response);
+                return await _downloadService.SpatialDataSDI(releaseId);
             }
             catch (Exception ex)
             {
