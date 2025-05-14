@@ -41,6 +41,29 @@ namespace natura2000_portal_back.Controllers
             }
         }
 
+        [HttpGet("SpatialDataSDI")]
+        public async Task<ActionResult<ServiceResponse<FileContentResult>>> SpatialDataSDI(long releaseId)
+        {
+            var response = new ServiceResponse<FileContentResult>();
+            try
+            {
+                var data = await _downloadService.SpatialDataSDI(releaseId);
+                response.Success = true;
+                response.Message = "";
+                response.Data = data;
+                response.Count = 1;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = null;
+                return Ok(response);
+            }
+        }
+
         [HttpGet("HabitatsSearchResults")]
         public async Task<ActionResult<ServiceResponse<FileContentResult>>> HabitatsSearchResults(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitat)
         {
