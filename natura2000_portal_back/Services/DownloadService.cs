@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using natura2000_portal_back.Data;
 using natura2000_portal_back.Models;
+using natura2000_portal_back.Models.release_db;
 using natura2000_portal_back.Models.ViewModel;
+using System.Diagnostics.Metrics;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -79,9 +81,9 @@ namespace natura2000_portal_back.Services
             }
         }
         public async Task<FileContentResult> SpatialDataSDI(long releaseId)
-        {
+        {                    
             HttpClient client = new();
-            String serverUrl = String.Format(_appSettings.Value.fme_service_spatial_data_sdi, _appSettings.Value.Environment, releaseId, _appSettings.Value.fme_security_token);
+            String serverUrl = String.Format(_appSettings.Value.fme_service_spatial_data_sdi, "stg", releaseId, _appSettings.Value.fme_security_token);
             try
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("Start SpatialDataSDI generation"), "DownloadService - SpatialDataSDI", "", _dataContext.Database.GetConnectionString());
@@ -105,6 +107,7 @@ namespace natura2000_portal_back.Services
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("End SpatialDataSDI generation"), "DownloadService - SpatialDataSDI", "", _dataContext.Database.GetConnectionString());
                 client.Dispose();
             }
+           
         }
 
         public async Task<FileContentResult> HabitatsSearchResults(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitat)
