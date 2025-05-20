@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using natura2000_portal_back.Data;
 using natura2000_portal_back.Models;
+using natura2000_portal_back.Models.release_db;
 using natura2000_portal_back.Models.ViewModel;
+using System.Diagnostics.Metrics;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -61,7 +63,7 @@ namespace natura2000_portal_back.Services
                 //call the FME script in async 
                 var res = await client.SendAsync(request);
                 //get the JobId 
-                var json = await res.Content.ReadAsStringAsync();                
+                var json = await res.Content.ReadAsStringAsync();
                 var response_dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json);
 
                 string jobId = response_dict["id"].ToString();
@@ -77,6 +79,35 @@ namespace natura2000_portal_back.Services
             {
                 client.Dispose();
             }
+        }
+        public async Task<FileContentResult> SpatialDataSDI(long releaseId)
+        {                    
+            HttpClient client = new();
+            String serverUrl = String.Format(_appSettings.Value.fme_service_spatial_data_sdi, _appSettings.Value.Environment, releaseId, _appSettings.Value.fme_security_token);
+            try
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("Start SpatialDataSDI generation"), "DownloadService - SpatialDataSDI", "", _dataContext.Database.GetConnectionString());
+                client.Timeout = TimeSpan.FromHours(5);
+                Task<HttpResponseMessage> response = client.GetAsync(serverUrl, HttpCompletionOption.ResponseHeadersRead);
+                Stream content = await response.Result.Content.ReadAsStreamAsync(); //  .ReadAsStringAsync();
+                string filename = response.Result.Content.Headers.ContentDisposition.FileNameStar;
+
+                return new FileContentResult(StreamToByteArray(content), "application/octet-stream")
+                {
+                    FileDownloadName = filename
+                };
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - SpatialDataSDI", "", _dataContext.Database.GetConnectionString());
+                return null;
+            }
+            finally
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("End SpatialDataSDI generation"), "DownloadService - SpatialDataSDI", "", _dataContext.Database.GetConnectionString());
+                client.Dispose();
+            }
+           
         }
 
         public async Task<FileContentResult> HabitatsSearchResults(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitat)
@@ -348,7 +379,7 @@ namespace natura2000_portal_back.Services
                     //FileDownloadName = string.Format("{0}.zip",userName)
                 };
             }
-            catch 
+            catch
             {
                 throw;
                 //await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "DownloadService - DownloadFromCwsfiles", "", _dataContext.Database.GetConnectionString());
