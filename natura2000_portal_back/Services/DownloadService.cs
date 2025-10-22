@@ -80,6 +80,50 @@ namespace natura2000_portal_back.Services
                 client.Dispose();
             }
         }
+
+        public async Task<int> SubmissionComparer(string CountryCode, int VersionFrom, int VersionTo, string email)
+        {
+
+            //call the FME in Async mode and do not wait for it.
+            //FME will send an email to the user when it´s finished
+            HttpClient client = new();
+            try
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, "Launch FME DescriptiveDataDeliveryChangeReportBySubmission_ToPDF", "DownloadService - SubmissionComparer", "", _dataContext.Database.GetConnectionString());
+                client.Timeout = TimeSpan.FromHours(5);
+                string url = string.Format(_appSettings.Value.fme_service_submission_comparer,
+                   CountryCode,
+                   VersionTo,
+                   VersionFrom,
+                   email,
+                   _appSettings.Value.fme_security_token);
+
+                Task<HttpResponseMessage> response = client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
+                var content = await response.Result.Content.ReadAsStringAsync(); //  .ReadAsStringAsync();
+
+                /*
+                //call the FME script in async 
+                var res = await client.SendAsync(request);
+                //get the JobId 
+                var json = await res.Content.ReadAsStringAsync();
+                var response_dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+
+                string jobId = response_dict["id"].ToString();
+                */
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("FME SubmissionComparer completed "), "DownloadService - ComputingSAC", "", _dataContext.Database.GetConnectionString());
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, String.Format("Error Launching FME:{0}", ex.Message), "DownloadService - SubmissionComparer", "", _dataContext.Database.GetConnectionString());
+                return 0;
+            }
+            finally
+            {
+                client.Dispose();
+            }
+        }
+
         public async Task<FileContentResult> SpatialDataSDI(long releaseId)
         {                    
             HttpClient client = new();
