@@ -291,5 +291,54 @@ namespace natura2000_portal_back.Services
                 throw;
             }
         }
+
+        public async Task<List<CountrySubmissions>> GetSubmissions()
+        {
+            try
+            {
+                List<CountrySubmissions> result = new List<CountrySubmissions> { };
+                
+                List<CountrySubmissionsDB> submissionsdb = await _releaseContext.Set<CountrySubmissionsDB>().FromSqlRaw($"exec dbo.GetCountrySubmissions").AsNoTracking().ToListAsync();
+
+                foreach (var submission in submissionsdb)
+                {
+                    if (result.Any(s=> s.CountryCode== submission.CountryCode))
+                    {
+                        result.FirstOrDefault(s => s.CountryCode == submission.CountryCode).Submissions.Add(
+                            new Submission
+                            {
+                                ImportDate = submission.ImportDate,
+                                VersionID = submission.VersionID,
+                            }
+                            );
+                    }
+                    else
+                    {
+                        List<Submission> _subList = new List<Submission>();
+                        _subList.Add(new Submission
+                        {
+                            ImportDate = submission.ImportDate,
+                            VersionID = submission.VersionID,
+                        }
+                        );
+                        CountrySubmissions cSub = new CountrySubmissions
+                        {
+                            CountryCode = submission.CountryCode,
+                            Submissions= _subList
+                        };
+                        result.Add(cSub);
+                    }
+                }
+
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, ex, "InfoService - GetSubmissions", "", _dataContext.Database.GetConnectionString());
+                throw;
+            }
+
+        }
     }
 }
