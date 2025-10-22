@@ -125,63 +125,103 @@ namespace natura2000_portal_back.Models.ViewModel
         }
     }
 
-    #region Unused
-    /*
-    public class BioregionCatalog : IEntityModel
+    [Keyless]
+    public class CountrySubmissionsDB : IEntityModel
     {
-        public string? BioregionName { get; set; }
-        public string? BioregionCode { get; set; }
-        public Boolean? IsMarine { get; set; }
-
-        public static void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<BioregionCatalog>();
-        }
-    }
-
-    public class CountriesCatalog : IEntityModel
-    {
-        public string? CountryName { get; set; }
         public string? CountryCode { get; set; }
+        public int VersionID { get; set; }
+        public string? ImportDate { get; set; }
 
-        public static void OnModelCreating(ModelBuilder builder)
+        public static new void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<CountriesCatalog>();
+            builder.Entity<CountrySubmissionsDB>();
         }
     }
 
-    public class HabitatGroupsCatalog : IEntityModel
+
+    [Keyless]
+    public class Submission : IEntityModel
     {
-        public string? HabitatGroupName { get; set; }
-        public string? HabitatGroupCode { get; set; }
-
-        public static void OnModelCreating(ModelBuilder builder)
+        public int VersionID { get; set; }
+        public string? ImportDate { get; set; } 
+        public static new void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<HabitatGroupsCatalog>();
+            builder.Entity<Submission>();
         }
     }
 
-    public class SiteTypesCatalog : IEntityModel
+
+    
+
+    [Keyless]
+    public class CountrySubmissions : IEntityModel
     {
-        public string? SiteTypeName { get; set; }
-        public string? SiteTypeCode { get; set; }
+        public string? CountryCode { get; set; }
+        public List<Submission>? Submissions { get; set; }
 
-        public static void OnModelCreating(ModelBuilder builder)
+        public static new void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<SiteTypesCatalog>();
+            builder.Entity<CountrySubmissions>();
         }
     }
 
-    public class SpeciesGroupsCatalog : IEntityModel
-    {
-        public string? SpeciesGroupName { get; set; }
-        public string? SpeciesGroupCode { get; set; }
-
-        public static void OnModelCreating(ModelBuilder builder)
+        #region Unused
+        /*
+        public class BioregionCatalog : IEntityModel
         {
-            builder.Entity<SpeciesGroupsCatalog>();
+            public string? BioregionName { get; set; }
+            public string? BioregionCode { get; set; }
+            public Boolean? IsMarine { get; set; }
+
+            public static void OnModelCreating(ModelBuilder builder)
+            {
+                builder.Entity<BioregionCatalog>();
+            }
         }
+
+        public class CountriesCatalog : IEntityModel
+        {
+            public string? CountryName { get; set; }
+            public string? CountryCode { get; set; }
+
+            public static void OnModelCreating(ModelBuilder builder)
+            {
+                builder.Entity<CountriesCatalog>();
+            }
+        }
+
+        public class HabitatGroupsCatalog : IEntityModel
+        {
+            public string? HabitatGroupName { get; set; }
+            public string? HabitatGroupCode { get; set; }
+
+            public static void OnModelCreating(ModelBuilder builder)
+            {
+                builder.Entity<HabitatGroupsCatalog>();
+            }
+        }
+
+        public class SiteTypesCatalog : IEntityModel
+        {
+            public string? SiteTypeName { get; set; }
+            public string? SiteTypeCode { get; set; }
+
+            public static void OnModelCreating(ModelBuilder builder)
+            {
+                builder.Entity<SiteTypesCatalog>();
+            }
+        }
+
+        public class SpeciesGroupsCatalog : IEntityModel
+        {
+            public string? SpeciesGroupName { get; set; }
+            public string? SpeciesGroupCode { get; set; }
+
+            public static void OnModelCreating(ModelBuilder builder)
+            {
+                builder.Entity<SpeciesGroupsCatalog>();
+            }
+        }
+        */
+        #endregion
     }
-    */
-    #endregion
-}
