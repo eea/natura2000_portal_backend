@@ -2,6 +2,7 @@
 using natura2000_portal_back.ServiceResponse;
 using AutoMapper;
 using natura2000_portal_back.Services;
+using System.Runtime.CompilerServices;
 
 namespace natura2000_portal_back.Controllers
 {
@@ -176,6 +177,28 @@ namespace natura2000_portal_back.Controllers
         }
 
 
+        [HttpGet("SubmissionComparer")]
+        public async Task<ActionResult<ServiceResponse<int>>> SubmissionComparer(string CountryCode, int VersionFrom,int VersionTo, string email)
+        {
+            var response = new ServiceResponse<int>();
+            try
+            {
+                var data = await _downloadService.SubmissionComparer(CountryCode, VersionFrom, VersionTo, email);
+                response.Success = true;
+                response.Message = "";
+                response.Data = data;
+                response.Count = 1;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = 0;
+                return Ok(response);
+            }
+        }
 
 
 

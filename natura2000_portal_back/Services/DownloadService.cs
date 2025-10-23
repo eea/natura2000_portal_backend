@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using natura2000_portal_back.Data;
+using natura2000_portal_back.Hubs;
 using natura2000_portal_back.Models;
 using natura2000_portal_back.Models.release_db;
 using natura2000_portal_back.Models.ViewModel;
@@ -18,13 +20,15 @@ namespace natura2000_portal_back.Services
         private readonly N2KReleasesContext _releaseContext;
         private readonly IOptions<ConfigSettings> _appSettings;
         private readonly IInfoService _infoService;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, IOptions<ConfigSettings> app, IInfoService infoService)
+        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, IHubContext<ChatHub> hubContext, IOptions<ConfigSettings> app, IInfoService infoService)
         {
             _dataContext = dataContext;
             _releaseContext = releaseContext;
             _appSettings = app;
             _infoService = infoService;
+            _hubContext = hubContext;
         }
 
         public async Task<int> ComputingSAC(long releaseId, string email)
@@ -80,6 +84,44 @@ namespace natura2000_portal_back.Services
                 client.Dispose();
             }
         }
+
+        public async Task<int> SubmissionComparer(string CountryCode, int VersionFrom, int VersionTo, string email)
+        {
+
+            //call the FME in Async mode and do not wait for it.
+            //FME will send an email to the user when it´s finished
+            HttpClient client = new();
+            try
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, "Launch FME DescriptiveDataDeliveryChangeReportBySubmission_ToPDF", "DownloadService - SubmissionComparer", "", _dataContext.Database.GetConnectionString());
+                client.Timeout = TimeSpan.FromHours(5);
+                string url = string.Format(_appSettings.Value.fme_service_submission_comparer,
+                   CountryCode,
+                   VersionTo,
+                   VersionFrom,
+                   email,
+                   _appSettings.Value.fme_security_token);
+
+                await _hubContext.Clients.All.SendAsync("FMESubmissionComparerLaunched", string.Format("{{\"CountryCode\":\"{0}\",\"VersionFrom\": {1},\"VersionTo\": {2} }}", CountryCode, VersionFrom, VersionTo));
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                var content = await response.Content.ReadAsStringAsync();
+
+
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("FME SubmissionComparer completed "), "DownloadService - ComputingSAC", "", _dataContext.Database.GetConnectionString());
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, String.Format("Error Launching FME:{0}", ex.Message), "DownloadService - SubmissionComparer", "", _dataContext.Database.GetConnectionString());
+                return 0;
+            }
+            finally
+            {
+                client.Dispose();
+            }
+        }
+
         public async Task<FileContentResult> SpatialDataSDI(long releaseId)
         {                    
             HttpClient client = new();

@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.VisualStudio.Web.CodeGenerators.Mvc.Templates.BlazorIdentity.Pages.Manage;
+using System;
 
 namespace natura2000_portal_back.Services
 {
@@ -14,5 +16,8 @@ namespace natura2000_portal_back.Services
 
 
         Task<FileContentResult> DownloadFromCwsfiles(long? releaseId);
+
+        Task<int> SubmissionComparer(string CountryCode,int VersionFrom, int VersionTo,string email);
+
     }
 }
