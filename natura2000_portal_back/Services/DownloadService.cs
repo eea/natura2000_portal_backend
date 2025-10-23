@@ -1,8 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using natura2000_portal_back.Data;
+using natura2000_portal_back.Hubs;
 using natura2000_portal_back.Models;
 using natura2000_portal_back.Models.release_db;
 using natura2000_portal_back.Models.ViewModel;
@@ -18,13 +20,15 @@ namespace natura2000_portal_back.Services
         private readonly N2KReleasesContext _releaseContext;
         private readonly IOptions<ConfigSettings> _appSettings;
         private readonly IInfoService _infoService;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, IOptions<ConfigSettings> app, IInfoService infoService)
+        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, IHubContext<ChatHub> hubContext, IOptions<ConfigSettings> app, IInfoService infoService)
         {
             _dataContext = dataContext;
             _releaseContext = releaseContext;
             _appSettings = app;
             _infoService = infoService;
+            _hubContext = hubContext;
         }
 
         public async Task<int> ComputingSAC(long releaseId, string email)
@@ -98,18 +102,12 @@ namespace natura2000_portal_back.Services
                    email,
                    _appSettings.Value.fme_security_token);
 
-                Task<HttpResponseMessage> response = client.GetAsync(url, HttpCompletionOption.ResponseHeadersRead);
-                var content = await response.Result.Content.ReadAsStringAsync(); //  .ReadAsStringAsync();
+                await _hubContext.Clients.All.SendAsync("FMESubmissionComparerLaunched", string.Format("{{\"CountryCode\":\"{0}\",\"VersionFrom\": {1},\"VersionTo\": {2} }}", CountryCode, VersionFrom, VersionTo));
+                var response = await client.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                var content = await response.Content.ReadAsStringAsync();
 
-                /*
-                //call the FME script in async 
-                var res = await client.SendAsync(request);
-                //get the JobId 
-                var json = await res.Content.ReadAsStringAsync();
-                var response_dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json);
 
-                string jobId = response_dict["id"].ToString();
-                */
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("FME SubmissionComparer completed "), "DownloadService - ComputingSAC", "", _dataContext.Database.GetConnectionString());
                 return 1;
             }
