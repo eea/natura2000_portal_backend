@@ -9,5 +9,7 @@ namespace natura2000_portal_back.Services
         Task<List<SitesParametered>> GetParameteredSites(long? releaseId, string? siteType, string? country, string? bioregion, string? site, string? habitat, string? species, Boolean? sensitive);
         Task<List<SpeciesParametered>> GetParameteredSpecies(long? releaseId, string? speciesGroup, string? country, string? bioregion, string? species, Boolean? sensitive);
         Task<ReleaseCounters> GetLatestReleaseCounters();
+
+        Task<List<CountrySubmissions>> GetSubmissions();
     }
 }

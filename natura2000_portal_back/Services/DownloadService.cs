@@ -1,11 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
+using Microsoft.CodeAnalysis;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using natura2000_portal_back.Data;
+using natura2000_portal_back.Hubs;
 using natura2000_portal_back.Models;
 using natura2000_portal_back.Models.release_db;
 using natura2000_portal_back.Models.ViewModel;
+using NuGet.Common;
+using NuGet.Protocol.Core.Types;
 using System.Diagnostics.Metrics;
 using System.Net.Http.Headers;
 using System.Text;
@@ -18,13 +23,15 @@ namespace natura2000_portal_back.Services
         private readonly N2KReleasesContext _releaseContext;
         private readonly IOptions<ConfigSettings> _appSettings;
         private readonly IInfoService _infoService;
+        private readonly IHubContext<ChatHub> _hubContext;
 
-        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, IOptions<ConfigSettings> app, IInfoService infoService)
+        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, IHubContext<ChatHub> hubContext, IOptions<ConfigSettings> app, IInfoService infoService)
         {
             _dataContext = dataContext;
             _releaseContext = releaseContext;
             _appSettings = app;
             _infoService = infoService;
+            _hubContext = hubContext;
         }
 
         public async Task<int> ComputingSAC(long releaseId, string email)
@@ -73,6 +80,62 @@ namespace natura2000_portal_back.Services
             catch (Exception ex)
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Error, String.Format("Error Launching FME:{0}", ex.Message), "DownloadService - ComputingSAC", "", _dataContext.Database.GetConnectionString());
+                return 0;
+            }
+            finally
+            {
+                client.Dispose();
+            }
+        }
+
+        public async Task<int> SubmissionComparer(string CountryCode, int VersionFrom, int VersionTo, string email)
+        {
+            string fmeFlowBaseUrl = _appSettings.Value.fme_service_submission_comparer.server_url;
+            string repository = _appSettings.Value.fme_service_submission_comparer.repository;
+            string workspace = _appSettings.Value.fme_service_submission_comparer.workspace;
+
+            HttpClient client = new HttpClient();
+            try
+            {
+                client.Timeout = TimeSpan.FromHours(5);
+                // Add headers
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("*/*"));
+                client.DefaultRequestHeaders.Add("Authorization", $"fmetoken token={_appSettings.Value.fme_security_token}");
+
+
+                string url = "https://fme.discomap.eea.europa.eu/fmeapiv4/jobs";
+                // Prepare request body exactly as in your curl
+
+                string body = string.Format(@"{{
+                    ""repository"":""{0}"",
+                    ""workspace"":""{1}"",                
+                    ""publishedParameters"":{{ 
+                    ""CountryCode"":""{2}"", 
+                    ""VersionTo"":""{3}"", 
+                    ""VersionFrom"":""{4}"", 
+                    ""MailNotifier"":""{5}"" 
+                    }}
+                    }}", repository, workspace, CountryCode,VersionTo ,VersionFrom,email);
+
+                HttpRequestMessage request = new(HttpMethod.Post, fmeFlowBaseUrl)
+                {
+                    Content = new StringContent(body, Encoding.UTF8, "application/json")//CONTENT-TYPE header
+                };
+
+                //call the FME script in async 
+                var res = await client.SendAsync(request);
+                //get the JobId 
+                var json = await res.Content.ReadAsStringAsync();
+                var response_dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+
+                string jobId = response_dict["id"].ToString();
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("FME SubmissionComparer Launched with jobId:{0}", jobId), "SubmissionComparer", "", _dataContext.Database.GetConnectionString());
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, String.Format("Error Launching FME:{0}", ex.Message), "DownloadService - SubmissionComparer", "", _dataContext.Database.GetConnectionString());
                 return 0;
             }
             finally
