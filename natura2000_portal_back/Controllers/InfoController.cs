@@ -133,5 +133,29 @@ namespace natura2000_portal_back.Controllers
                 return Ok(response);
             }
         }
+
+        [HttpGet("GetSubmissions")]
+        public async Task<ActionResult<ServiceResponse<List<CountrySubmissions>>>> GetSubmissions()
+        {
+            var response = new ServiceResponse<List<CountrySubmissions>>();
+            try
+            {
+                var data = await _infoService.GetSubmissions();
+                response.Success = true;
+                response.Message = "";
+                response.Data = data;
+                response.Count = (data == null) ? 0 : 1;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = new List<CountrySubmissions>();
+                return Ok(response);
+            }
+        }
+
     }
 }
