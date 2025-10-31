@@ -11,6 +11,7 @@ using natura2000_portal_back.Models.release_db;
 using natura2000_portal_back.Models.ViewModel;
 using NuGet.Common;
 using NuGet.Protocol.Core.Types;
+using System;
 using System.Diagnostics.Metrics;
 using System.Net.Http.Headers;
 using System.Text;
@@ -38,6 +39,12 @@ namespace natura2000_portal_back.Services
         {
             string title = "SAC_Computation_Release_" + releaseId;
 
+
+            string fmeFlowBaseUrl = _appSettings.Value.fme_service_sac_computation.server_url;
+            string repository = _appSettings.Value.fme_service_sac_computation.repository;
+            string workspace = _appSettings.Value.fme_service_sac_computation.workspace;
+
+
             //call the FME in Async mode and do not wait for it.
             //FME will send an email to the user when it´s finished
             HttpClient client = new();
@@ -45,24 +52,28 @@ namespace natura2000_portal_back.Services
             {
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, "Launch FME SAC Computation creation", "DownloadService - ComputingSAC", "", _dataContext.Database.GetConnectionString());
                 client.Timeout = TimeSpan.FromHours(5);
-                string url = string.Format("{0}/fmerest/v3/transformations/submit/{1}/{2}",
-                   _appSettings.Value.fme_service_sac_computation.server_url,
-                   _appSettings.Value.fme_service_sac_computation.repository,
-                   _appSettings.Value.fme_service_sac_computation.workspace);
 
-                string body = string.Format(@"{{""publishedParameters"":[" +
-                    @"{{""name"":""VersionId"",""value"":{0}}}," +
-                    @"{{""name"":""DestDatasetFolder"",""value"":""{1}""}}," +
-                    @"{{""name"":""OutputName"",""value"": ""{2}""}}," +
-                    @"{{""name"":""Environment"",""value"": ""{3}""}}," +
-                    @"{{""name"":""EMail"",""value"": ""{4}""}}]" +
-                    @"}}", releaseId, _appSettings.Value.SACComputationDestDatasetFolder, title, _appSettings.Value.Environment, email);
+                // Add headers
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("*/*"));
+                client.DefaultRequestHeaders.Add("Authorization", $"fmetoken token={_appSettings.Value.fme_security_token}");
+                
+                // Prepare request body exactly as in your curl
 
-                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("fmetoken", "token=" + _appSettings.Value.fme_security_token);
-                client.DefaultRequestHeaders.Accept
-                    .Add(new MediaTypeWithQualityHeaderValue("application/x-www-form-urlencoded"));//ACCEPT header
+                string body = string.Format(@"{{
+                    ""repository"":""{0}"",
+                    ""workspace"":""{1}"",                
+                    ""publishedParameters"":{{                     
+                    ""VersionId"":{2}, 
+                    ""DestDatasetFolder"":""{3}"", 
+                    ""OutputName"":""{4}"", 
+                    ""Environment"":""{5}"",
+                    ""EMail"": ""{6}""
+                    }}
+                    }}", repository, workspace, releaseId, _appSettings.Value.SACComputationDestDatasetFolder, _appSettings.Value.Environment, "stg", email);
 
-                HttpRequestMessage request = new(HttpMethod.Post, url)
+
+                HttpRequestMessage request = new(HttpMethod.Post, fmeFlowBaseUrl)
                 {
                     Content = new StringContent(body, Encoding.UTF8, "application/json")//CONTENT-TYPE header
                 };
@@ -72,6 +83,7 @@ namespace natura2000_portal_back.Services
                 //get the JobId 
                 var json = await res.Content.ReadAsStringAsync();
                 var response_dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+
 
                 string jobId = response_dict["id"].ToString();
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("FME SAC Computation creation launched with jobId:{0}", jobId), "DownloadService - ComputingSAC", "", _dataContext.Database.GetConnectionString());
