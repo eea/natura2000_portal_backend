@@ -373,3 +373,5 @@ MigrationBackup/
 FodyWeavers.xsd
 /.editorconfig
 #/N2K_BackboneBackEnd/appsettings.json
+/natura2000_portal_back/.env
+/natura2000_portal_back/env

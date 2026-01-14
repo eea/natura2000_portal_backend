@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build  ASP.Net Core app for n2k-portal-backend
+name: Build  ASP.Net Core app for n2k-portal-backend Staging
 
 on:
   push:
@@ -12,6 +12,7 @@ on:
 jobs:
   build:
     runs-on: windows-latest
+    environment: Staging
 
     steps:
       - uses: actions/checkout@v4
@@ -30,7 +31,18 @@ jobs:
           rmdir natura2000_portal_back/Configs
 
       - name: dotnet publish
-        run: dotnet publish -c Release --property:PublishDir=C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+        shell: pwsh
+        run: |
+          $publishDir = "C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp"
+          # Publish project
+          dotnet publish -c Release --property:PublishDir=$publishDir
+
+          # Create multi-line .env file
+          @"
+          BackboneDB_ConnectionString=${{ secrets.BACKBONEDB_CONNECTIONSTRING }}
+          ReleasesDB_ConnectionString=${{ secrets.RELEASESDB_CONNECTIONSTRING }}
+          FME_TOKEN=${{ secrets.FME_TOKEN }}
+          "@ | Out-File -FilePath "$publishDir\env" -Encoding utf8                
 
       - name: Upload artifact for deployment job in Staging
         uses: actions/upload-artifact@v4
