@@ -47,6 +47,12 @@ jobs:
           ASPNETCORE_ENVIRONMENT=Development
           "@ | Out-File -FilePath natura2000_portal_back\.env -Encoding utf8
 
+      - name: Upload .env file as artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: portal-env
+          path: natura2000_portal_back/.env
+          
       - name: dotnet publish
         run: dotnet publish -c Release --property:PublishDir=C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
 
@@ -56,4 +62,5 @@ jobs:
           name: .net-app
           path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
   
+
 
