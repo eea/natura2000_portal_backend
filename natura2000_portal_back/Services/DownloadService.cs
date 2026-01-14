@@ -44,7 +44,6 @@ namespace natura2000_portal_back.Services
             string repository = _appSettings.Value.fme_service_sac_computation.repository;
             string workspace = _appSettings.Value.fme_service_sac_computation.workspace;
 
-
             //call the FME in Async mode and do not wait for it.
             //FME will send an email to the user when it´s finished
             HttpClient client = new();
