@@ -41,22 +41,24 @@ jobs:
       
           # Create multi-line .env file
           @"
-          BackboneDB_ConnectionString=aaaa
-          ReleasesDB_ConnectionString=bbb
+          BackboneDB_ConnectionString=${{ secrets.DEV_BACKBONEDB_CONNECTIONSTRING }}
+          ReleasesDB_ConnectionString=${{ secrets.DEV_RELEASESDB_CONNECTIONSTRING }}
           FME_TOKEN=${{ secrets.DEV_FME_TOKEN }}
           "@ | Out-File -FilePath natura2000_portal_back\env123 -Encoding utf8
 
       - name: dotnet publish
+        shell: pwsh
         run: |
+          $publishDir = "C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp"
           # Publish project
-          dotnet publish -c Release --property:PublishDir=C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+          dotnet publish -c Release --property:PublishDir=$publishDir
 
           # Create multi-line .env file
           @"
-          BackboneDB_ConnectionString=aaaa
-          ReleasesDB_ConnectionString=bbb
+          BackboneDB_ConnectionString=${{ secrets.DEV_BACKBONEDB_CONNECTIONSTRING }}
+          ReleasesDB_ConnectionString=${{ secrets.DEV_RELEASESDB_CONNECTIONSTRING }}
           FME_TOKEN=${{ secrets.DEV_FME_TOKEN }}
-          "@ | Out-File -FilePath "$publishDir\.env" -Encoding utf8
+          "@ | Out-File -FilePath "$publishDir\env" -Encoding utf8
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -64,6 +66,7 @@ jobs:
           name: .net-app
           path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
   
+
 
 
 
