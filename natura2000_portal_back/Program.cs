@@ -15,7 +15,7 @@ using System.Text.RegularExpressions;
 
 
 // Load local .env file (ignored in Git)
-Env.Load();
+Env.Load("env");
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders().AddConsole();
