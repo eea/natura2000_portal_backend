@@ -34,11 +34,13 @@ jobs:
           rmdir natura2000_portal_back/Configs
 
       - name: Create .env file
+        shell: pwsh
         run: |
-          echo "BackboneDB_ConnectionString=aaaa" > .env
-          #echo "ReleasesDB_ConnectionString=bbb" >> .env
-          #echo "FME_TOKEN=${{ secrets.DEV_FME_TOKEN }}" >> .env
-          copy .env natura2000_portal_back/.env
+          # Ensure the target folder exists
+          New-Item -ItemType Directory -Force -Path natura2000_portal_back | Out-Null
+      
+          # Create the .env file with multiple environment variables
+          @"BackboneDB_ConnectionString=aaaa"@ | Out-File -FilePath natura2000_portal_back\.env -Encoding utf8
 
       - name: dotnet publish
         run: dotnet publish -c Release --property:PublishDir=C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
@@ -48,40 +50,4 @@ jobs:
         with:
           name: .net-app
           path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-app
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'n2k-portal-back'
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_71F1A85C334548A08092BE0DA6A30293 }}
-          package: .
-
-  delete:
-    runs-on: windows-latest
-    needs: deploy
-    steps:
-      - name: Delete Old Artifacts
-        id: artifact
-        uses: geekyeggo/delete-artifact@v5
-        with:
-          name: .net-app
-
-
-
-
-
-
+  
