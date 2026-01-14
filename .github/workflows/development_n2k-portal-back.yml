@@ -15,7 +15,7 @@ jobs:
     env:
       BackboneDB_ConnectionString: ${{ secrets.DEV_BACKBONEDB_CONNECTIONSTRING }}
       ReleasesDB_ConnectionString: ${{ secrets.DEV_RELEASESDB_CONNECTIONSTRING }}
-      FME_TOKEN: ${{ secrets.DEV_DB_PASSWORD }}
+      FME_TOKEN: ${{ secrets.DEV_FME_TOKEN }}
       
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +34,18 @@ jobs:
           rmdir natura2000_portal_back/Configs
 
       - name: dotnet publish
-        run: dotnet publish -c Release --property:PublishDir=C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+        shell: pwsh
+        run: |
+          $publishDir = "C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp"
+          # Publish project
+          dotnet publish -c Release --property:PublishDir=$publishDir
+
+          # Create multi-line .env file
+          @"
+          BackboneDB_ConnectionString=${{ secrets.DEV_BACKBONEDB_CONNECTIONSTRING }}
+          ReleasesDB_ConnectionString=${{ secrets.DEV_RELEASESDB_CONNECTIONSTRING }}
+          FME_TOKEN=${{ secrets.DEV_FME_TOKEN }}
+          "@ | Out-File -FilePath "$publishDir\env" -Encoding utf8
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -62,7 +73,6 @@ jobs:
           slot-name: 'Production'
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_71F1A85C334548A08092BE0DA6A30293 }}
           package: .
-
   delete:
     runs-on: windows-latest
     needs: deploy
@@ -72,4 +82,3 @@ jobs:
         uses: geekyeggo/delete-artifact@v5
         with:
           name: .net-app
-
