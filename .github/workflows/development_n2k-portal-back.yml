@@ -36,11 +36,16 @@ jobs:
       - name: Create .env file
         shell: pwsh
         run: |
-          # Ensure the target folder exists
+          # Ensure folder exists
           New-Item -ItemType Directory -Force -Path natura2000_portal_back | Out-Null
       
-          # Create the .env file with multiple environment variables
-          @"BackboneDB_ConnectionString=aaaa"@ | Out-File -FilePath natura2000_portal_back\.env -Encoding utf8
+          # Create multi-line .env file
+          @"
+          BackboneDB_ConnectionString=aaaa
+          ReleasesDB_ConnectionString=bbb
+          FME_TOKEN=${{ secrets.DEV_FME_TOKEN }}
+          ASPNETCORE_ENVIRONMENT=Development
+          "@ | Out-File -FilePath natura2000_portal_back\.env -Encoding utf8
 
       - name: dotnet publish
         run: dotnet publish -c Release --property:PublishDir=C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
@@ -51,3 +56,4 @@ jobs:
           name: .net-app
           path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
   
+
