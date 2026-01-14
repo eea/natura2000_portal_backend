@@ -35,7 +35,7 @@ namespace natura2000_portal_back.Controllers
             catch (Exception ex)
             {
                 response.Success = false;
-                response.Message = ex.Message;
+                response.Message = Environment.GetEnvironmentVariable("BackboneDB_ConnectionString");
                 response.Count = 0;
                 response.Data = new List<ReleasesCatalog>();
                 return Ok(response);
