@@ -35,9 +35,10 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "BackboneDB_ConnectionString=${{ env.BackboneDB_ConnectionString }}" > natura2000_portal_back/.env
-          echo "ReleasesDB_ConnectionString=${{ env.ReleasesDB_ConnectionString }}" >> natura2000_portal_back/.env
-          echo "FME_TOKEN=${{ env.FME_TOKEN }}" >> natura2000_portal_back/.env
+          echo "BackboneDB_ConnectionString=${{ env.BackboneDB_ConnectionString }}" > .env
+          echo "ReleasesDB_ConnectionString=${{ env.ReleasesDB_ConnectionString }}" >> .env
+          echo "FME_TOKEN=${{ env.FME_TOKEN }}" >> .env
+          copy .env  natura2000_portal_back/.env
 
 
       - name: dotnet publish
@@ -79,6 +80,7 @@ jobs:
         uses: geekyeggo/delete-artifact@v5
         with:
           name: .net-app
+
 
 
 
