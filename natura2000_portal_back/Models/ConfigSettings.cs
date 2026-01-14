@@ -20,7 +20,14 @@
     {
         public string Environment { get; set; } = string.Empty;
         public string SACComputationDestDatasetFolder { get; set; } = string.Empty;
-        public string fme_security_token { get; set; } = string.Empty;
+        public string fme_security_token
+        {
+            get
+            {
+                return System.Environment.GetEnvironmentVariable("FME_TOKEN") ?? string.Empty;
+            }
+        }
+
         public fme_service_config? fme_service_sac_computation { get; set; }
 
         public fme_service_config? fme_service_submission_comparer { get; set; }
