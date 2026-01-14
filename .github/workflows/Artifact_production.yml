@@ -12,7 +12,8 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
+    environment: Production
+    
     steps:
       - uses: actions/checkout@v4
       - name: Set up .NET Core
@@ -30,7 +31,18 @@ jobs:
           rmdir natura2000_portal_back/Configs
 
       - name: dotnet publish
-        run: dotnet publish -c Release --property:PublishDir=C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+        shell: pwsh
+        run: |
+          $publishDir = "C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp"
+          # Publish project
+          dotnet publish -c Release --property:PublishDir=$publishDir
+
+          # Create multi-line .env file
+          @"
+          BackboneDB_ConnectionString=${{ secrets.BACKBONEDB_CONNECTIONSTRING }}
+          ReleasesDB_ConnectionString=${{ secrets.RELEASESDB_CONNECTIONSTRING }}
+          FME_TOKEN=${{ secrets.FME_TOKEN }}
+          "@ | Out-File -FilePath "$publishDir\env" -Encoding utf8
 
       - name: Upload artifact for deployment job in Production
         uses: actions/upload-artifact@v4
