@@ -12,10 +12,7 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    env:
-      BackboneDB_ConnectionString: ${{ secrets.DEV_BACKBONEDB_CONNECTIONSTRING }}
-      ReleasesDB_ConnectionString: ${{ secrets.DEV_RELEASESDB_CONNECTIONSTRING }}
-      FME_TOKEN: ${{ secrets.DEV_FME_TOKEN }}
+    environment: Development
       
     steps:
       - uses: actions/checkout@v4
@@ -44,7 +41,7 @@ jobs:
           @"
           BackboneDB_ConnectionString=${{ secrets.DEV_BACKBONEDB_CONNECTIONSTRING }}
           ReleasesDB_ConnectionString=${{ secrets.DEV_RELEASESDB_CONNECTIONSTRING }}
-          FME_TOKEN=${{ secrets.DEV_FME_TOKEN }}
+          FME_TOKEN=${{ secrets.MY_DEV_FME_TOKEN }}
           "@ | Out-File -FilePath "$publishDir\env" -Encoding utf8
 
       - name: Upload artifact for deployment job
@@ -52,33 +49,3 @@ jobs:
         with:
           name: .net-app
           path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
-  deploy:
-    runs-on: windows-latest
-    needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
-    steps:
-      - name: Download artifact from build job
-        uses: actions/download-artifact@v4
-        with:
-          name: .net-app
-
-      - name: Deploy to Azure Web App
-        id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
-        with:
-          app-name: 'n2k-portal-back'
-          slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_71F1A85C334548A08092BE0DA6A30293 }}
-          package: .
-  delete:
-    runs-on: windows-latest
-    needs: deploy
-    steps:
-      - name: Delete Old Artifacts
-        id: artifact
-        uses: geekyeggo/delete-artifact@v5
-        with:
-          name: .net-app
