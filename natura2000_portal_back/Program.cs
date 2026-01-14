@@ -1,16 +1,21 @@
-using natura2000_portal_back.Data;
-using Microsoft.EntityFrameworkCore;
-using System.Text.Json.Serialization;
-using Microsoft.OpenApi.Models;
-using natura2000_portal_back.Services;
-using natura2000_portal_back.Models;
-using Microsoft.AspNetCore.ResponseCompression;
-using System.IO.Compression;
-using natura2000_portal_back.Helpers;
+using DotNetEnv;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.AspNetCore.ResponseCompression;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
+using Microsoft.OpenApi.Models;
+using natura2000_portal_back.Data;
+using natura2000_portal_back.Helpers;
 using natura2000_portal_back.Hubs;
+using natura2000_portal_back.Models;
+using natura2000_portal_back.Services;
+using System.IO.Compression;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
+
+// Load local .env file (ignored in Git)
+Env.Load();
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders().AddConsole();
@@ -43,17 +48,26 @@ builder.Services.Configure<GzipCompressionProviderOptions>
    }
 );
 
-
+// Add environment variables to Configuration
+builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddJsonFile("appsettings.json");
+
+var connStr =
+    builder.Configuration["BackboneDB_ConnectionString"]
+    ?? builder.Configuration.GetConnectionString("N2K_BackboneBackEndContext");
 
 builder.Services.AddDbContext<N2KBackboneContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("N2K_BackboneBackEndContext"));
+    options.UseSqlServer(connStr);
 });
+
+connStr =
+    builder.Configuration["ReleasesDB_ConnectionString"]
+    ?? builder.Configuration.GetConnectionString("N2K_ReleasesBackEndContext");
 
 builder.Services.AddDbContext<N2KReleasesContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("N2K_ReleasesBackEndContext"));
+    options.UseSqlServer(connStr);
 });
 
 

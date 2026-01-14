@@ -12,7 +12,11 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-
+    env:
+      BackboneDB_ConnectionString: ${{ secrets.DEV_BACKBONEDB_CONNECTIONSTRING }}
+      ReleasesDB_ConnectionString: ${{ secrets.DEV_RELEASESDB_CONNECTIONSTRING }}
+      FME_TOKEN: ${{ secrets.DEV_DB_PASSWORD }}
+      
     steps:
       - uses: actions/checkout@v4
       - name: Set up .NET Core
@@ -68,3 +72,4 @@ jobs:
         uses: geekyeggo/delete-artifact@v5
         with:
           name: .net-app
+
