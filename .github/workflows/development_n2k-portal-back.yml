@@ -15,7 +15,7 @@ jobs:
     env:
       BackboneDB_ConnectionString: ${{ secrets.DEV_BACKBONEDB_CONNECTIONSTRING }}
       ReleasesDB_ConnectionString: ${{ secrets.DEV_RELEASESDB_CONNECTIONSTRING }}
-      FME_TOKEN: ${{ secrets.DEV_DB_PASSWORD }}
+      FME_TOKEN: ${{ secrets.DEV_FME_TOKEN }}
       
     steps:
       - uses: actions/checkout@v4
@@ -32,6 +32,9 @@ jobs:
           copy natura2000_portal_back/Configs/appsettings_dev.json natura2000_portal_back/appsettings.json  
           del natura2000_portal_back/Configs/*.json
           rmdir natura2000_portal_back/Configs
+
+      - name: Create .env file
+        run: echo "BackboneDB_ConnectionString=${{ env.BackboneDB_ConnectionString }}" > .env 
 
       - name: dotnet publish
         run: dotnet publish -c Release --property:PublishDir=C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
@@ -72,4 +75,5 @@ jobs:
         uses: geekyeggo/delete-artifact@v5
         with:
           name: .net-app
+
 
