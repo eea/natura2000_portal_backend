@@ -46,14 +46,17 @@ jobs:
           FME_TOKEN=${{ secrets.DEV_FME_TOKEN }}
           "@ | Out-File -FilePath natura2000_portal_back\env123 -Encoding utf8
 
-      - name: Upload .env file as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: portal-env
-          path: natura2000_portal_back/env123
-          
       - name: dotnet publish
-        run: dotnet publish -c Release --property:PublishDir=C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+        run: |
+          # Publish project
+          dotnet publish -c Release --property:PublishDir=C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+
+          # Create multi-line .env file
+          @"
+          BackboneDB_ConnectionString=aaaa
+          ReleasesDB_ConnectionString=bbb
+          FME_TOKEN=${{ secrets.DEV_FME_TOKEN }}
+          "@ | Out-File -FilePath "$publishDir\.env" -Encoding utf8
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -61,6 +64,7 @@ jobs:
           name: .net-app
           path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
   
+
 
 
 
