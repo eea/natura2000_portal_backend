@@ -12,10 +12,7 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    env:
-      BackboneDB_ConnectionString: ${{ secrets.DEV_BACKBONEDB_CONNECTIONSTRING }}
-      ReleasesDB_ConnectionString: ${{ secrets.DEV_RELEASESDB_CONNECTIONSTRING }}
-      FME_TOKEN: ${{ secrets.DEV_FME_TOKEN }}
+    environment: Development
       
     steps:
       - uses: actions/checkout@v4
@@ -42,9 +39,9 @@ jobs:
 
           # Create multi-line .env file
           @"
-          BackboneDB_ConnectionString=${{ secrets.DEV_BACKBONEDB_CONNECTIONSTRING }}
-          ReleasesDB_ConnectionString=${{ secrets.DEV_RELEASESDB_CONNECTIONSTRING }}
-          FME_TOKEN=${{ secrets.DEV_FME_TOKEN }}
+          BackboneDB_ConnectionString=${{ secrets.BACKBONEDB_CONNECTIONSTRING }}
+          ReleasesDB_ConnectionString=${{ secrets.RELEASESDB_CONNECTIONSTRING }}
+          FME_TOKEN=${{ secrets.FME_TOKEN }}
           "@ | Out-File -FilePath "$publishDir\env" -Encoding utf8
 
       - name: Upload artifact for deployment job
@@ -52,6 +49,7 @@ jobs:
         with:
           name: .net-app
           path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+
   deploy:
     runs-on: windows-latest
     needs: build
@@ -81,4 +79,5 @@ jobs:
         id: artifact
         uses: geekyeggo/delete-artifact@v5
         with:
-          name: .net-app
+          name: .net-app  
+
