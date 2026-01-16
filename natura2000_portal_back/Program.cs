@@ -58,7 +58,7 @@ var connStrBackbone =
 
 builder.Services.AddDbContext<N2KBackboneContext>(options =>
 {
-    options.UseSqlServer(connStrBackbone);
+    options.UseSqlServer(connStrBackbone); 
 });
 
 var connStrReleases =
