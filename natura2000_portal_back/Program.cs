@@ -52,22 +52,22 @@ builder.Services.Configure<GzipCompressionProviderOptions>
 builder.Configuration.AddEnvironmentVariables();
 builder.Configuration.AddJsonFile("appsettings.json");
 
-var connStr =
+var connStrBackbone =
     builder.Configuration["BackboneDB_ConnectionString"]
     ?? builder.Configuration.GetConnectionString("N2K_BackboneBackEndContext");
 
 builder.Services.AddDbContext<N2KBackboneContext>(options =>
 {
-    options.UseSqlServer(connStr);
+    options.UseSqlServer(connStrBackbone); 
 });
 
-connStr =
+var connStrReleases =
     builder.Configuration["ReleasesDB_ConnectionString"]
     ?? builder.Configuration.GetConnectionString("N2K_ReleasesBackEndContext");
 
 builder.Services.AddDbContext<N2KReleasesContext>(options =>
 {
-    options.UseSqlServer(connStr);
+    options.UseSqlServer(connStrReleases);
 });
 
 
