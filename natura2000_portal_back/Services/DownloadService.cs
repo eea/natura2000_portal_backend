@@ -125,7 +125,7 @@ namespace natura2000_portal_back.Services
                     ""CountryCode"":""{2}"", 
                     ""VersionTo"":""{3}"", 
                     ""VersionFrom"":""{4}"", 
-                    ""MailNotifier"":""{5}"" 
+                    ""EMail"":""{5}"" 
                     }}
                     }}", repository, workspace, CountryCode,VersionTo ,VersionFrom,email);
 
