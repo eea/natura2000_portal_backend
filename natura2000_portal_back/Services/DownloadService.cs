@@ -69,7 +69,7 @@ namespace natura2000_portal_back.Services
                     ""Environment"":""{5}"",
                     ""EMail"": ""{6}""
                     }}
-                    }}", repository, workspace, releaseId, _appSettings.Value.SACComputationDestDatasetFolder, _appSettings.Value.Environment, "stg", email);
+                    }}", repository, workspace, releaseId, _appSettings.Value.SACComputationDestDatasetFolder, $"SAC_Computation_Release_{releaseId}" , _appSettings.Value.Environment, email);
 
 
                 HttpRequestMessage request = new(HttpMethod.Post, fmeFlowBaseUrl)
