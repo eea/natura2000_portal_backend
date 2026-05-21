@@ -20,6 +20,30 @@ namespace natura2000_portal_back.Controllers
             _mapper = mapper;
         }
 
+        [Route("GetLastReleaseId")]
+        [HttpGet]
+        public async Task<ActionResult<long>> GetLastReleaseId(string SiteCode, int ReleaseId = -1, Boolean initialValidation = false, Boolean internalViewers = false, Boolean internalBarometer = false, Boolean internalPortalSDFSensitive = false, Boolean publicViewers = false, Boolean publicBarometer = false, Boolean sdfPublic = false, Boolean naturaOnlineList = false, Boolean productsCreated = false, Boolean jediDimensionCreated = false)
+        {
+            ServiceResponse<long> response = new();
+            try
+            {
+                long result = await _SDFService.GetLastReleaseId(SiteCode, ReleaseId, initialValidation, internalViewers, internalBarometer, internalPortalSDFSensitive, publicViewers, publicBarometer, sdfPublic, naturaOnlineList, productsCreated, jediDimensionCreated);
+                response.Success = true;
+                response.Message = "";
+                response.Data = result;
+                response.Count = 1;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = -1;
+                return Ok(response);
+            }
+        }
+
         [Route("GetReleaseData")]
         [HttpGet]
         public async Task<ActionResult<ReleaseSDF>> GetReleaseData(string SiteCode, int ReleaseId = -1, Boolean initialValidation = false, Boolean internalViewers = false, Boolean internalBarometer = false, Boolean internalPortalSDFSensitive = false, Boolean publicViewers = false, Boolean publicBarometer = false, Boolean sdfPublic = false, Boolean naturaOnlineList = false, Boolean productsCreated = false, Boolean jediDimensionCreated = false)
@@ -40,6 +64,30 @@ namespace natura2000_portal_back.Controllers
                 response.Message = ex.Message;
                 response.Count = 0;
                 response.Data = new ReleaseSDF();
+                return Ok(response);
+            }
+        }
+
+        [Route("GetReleaseDataLegacy")]
+        [HttpGet]
+        public async Task<ActionResult<ReleaseSDFLegacy>> GetReleaseDataLegacy(string SiteCode, int ReleaseId = -1, Boolean initialValidation = false, Boolean internalViewers = false, Boolean internalBarometer = false, Boolean internalPortalSDFSensitive = false, Boolean publicViewers = false, Boolean publicBarometer = false, Boolean sdfPublic = false, Boolean naturaOnlineList = false, Boolean productsCreated = false, Boolean jediDimensionCreated = false)
+        {
+            ServiceResponse<ReleaseSDFLegacy> response = new();
+            try
+            {
+                ReleaseSDFLegacy result = await _SDFService.GetReleaseDataLegacy(SiteCode, ReleaseId, initialValidation, internalViewers, internalBarometer, internalPortalSDFSensitive, publicViewers, publicBarometer, sdfPublic, naturaOnlineList, productsCreated, jediDimensionCreated);
+                response.Success = true;
+                response.Message = "";
+                response.Data = result;
+                response.Count = 1;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = new ReleaseSDFLegacy();
                 return Ok(response);
             }
         }

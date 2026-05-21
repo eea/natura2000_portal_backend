@@ -11,9 +11,8 @@ namespace natura2000_portal_back.Models.ViewModel
         public SiteLocation SiteLocation { get; set; } = new SiteLocation();
         public EcologicalInformation EcologicalInformation { get; set; } = new EcologicalInformation();
         public SiteDescription SiteDescription { get; set; } = new SiteDescription();
-        public SiteProtectionStatus SiteProtectionStatus { get; set; } = new SiteProtectionStatus();
         public SiteManagement SiteManagement { get; set; } = new SiteManagement();
-        public MapOfTheSite MapOfTheSite { get; set; } = new MapOfTheSite();
+        public GeospatialRepresentation GeospatialRepresentation { get; set; } = new GeospatialRepresentation();
 
         public static void OnModelCreating(ModelBuilder builder)
         {
@@ -25,13 +24,5 @@ namespace natura2000_portal_back.Models.ViewModel
     public class SiteInfoRelease : SiteInfo
     {
         public List<ReleaseInfo>? Releases { get; set; } = new List<ReleaseInfo>();
-    }
-
-    [NotMapped]
-    public class ReleaseInfo
-    {
-        public long? ReleaseId { get; set; }
-        public string? ReleaseName { get; set; }
-        public DateTime? ReleaseDate { get; set; }
     }
 }

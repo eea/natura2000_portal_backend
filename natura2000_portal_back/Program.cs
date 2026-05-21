@@ -70,6 +70,24 @@ builder.Services.AddDbContext<N2KReleasesContext>(options =>
     options.UseSqlServer(connStrReleases);
 });
 
+var connStrReleasesLegacy =
+    builder.Configuration["ReleasesLegacyDB_ConnectionString"]
+    ?? builder.Configuration.GetConnectionString("N2K_ReleasesLegacyBackEndContext");
+
+builder.Services.AddDbContext<N2KReleasesLegacyContext>(options =>
+{
+    options.UseSqlServer(connStrReleasesLegacy);
+});
+
+var connStrProduction =
+    builder.Configuration["N2K_ProductionDB_ConnectionString"]
+    ?? builder.Configuration.GetConnectionString("N2K_ProductionBackEndContext");
+
+builder.Services.AddDbContext<N2K_ProductionContext>(options =>
+{
+    options.UseSqlServer(connStrProduction);
+});
+
 
 builder.Services.Configure<FormOptions>(o =>
 {
