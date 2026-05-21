@@ -41,6 +41,8 @@ jobs:
           @"
           BackboneDB_ConnectionString=${{ secrets.BACKBONEDB_CONNECTIONSTRING }}
           ReleasesDB_ConnectionString=${{ secrets.RELEASESDB_CONNECTIONSTRING }}
+          Releases_LegacyDB_ConnectionString=${{ secrets.N2K_RELEASES_LEGACY_CONNSTRING }}
+          ProductionDB_ConnectionString=${{ secrets.N2K_PRODUCTION_CONNSTRING }}          
           FME_TOKEN=${{ secrets.FME_TOKEN }}
           "@ | Out-File -FilePath "$publishDir\env" -Encoding utf8
 
