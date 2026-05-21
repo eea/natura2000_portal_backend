@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using natura2000_portal_back.ServiceResponse;
-using AutoMapper;
 using natura2000_portal_back.Models.ViewModel;
 using natura2000_portal_back.Services;
 
@@ -11,12 +10,11 @@ namespace natura2000_portal_back.Controllers
     public class InfoController : ControllerBase
     {
         private readonly IInfoService _infoService;
-        private readonly IMapper _mapper;
 
-        public InfoController(IInfoService controllerInfo, IMapper mapper)
+        public InfoController(IInfoService controllerInfo)
         {
             _infoService = controllerInfo;
-            _mapper = mapper;
+
         }
 
         [HttpGet("GetOfficialReleases")]
