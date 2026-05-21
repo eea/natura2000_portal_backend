@@ -63,4 +63,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: backend-app_staging
-          path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+          path: ${{ runner.temp }}\publish
