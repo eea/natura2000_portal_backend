@@ -54,7 +54,7 @@ jobs:
         run: |
           $publishDir = "$env:RUNNER_TEMP\publish"
           New-Item -ItemType Directory -Force -Path $publishDir
-          dotnet publish natura2000_portal_backend/natura2000_portal_backend.csproj `
+          dotnet publish natura2000_portal_back/natura2000_portal_back.csproj `
             -c Release `
             --output $publishDir
           
