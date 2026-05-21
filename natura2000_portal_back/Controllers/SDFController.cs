@@ -1,5 +1,4 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using natura2000_portal_back.Models.ViewModel;
 using natura2000_portal_back.ServiceResponse;
@@ -12,12 +11,11 @@ namespace natura2000_portal_back.Controllers
     public class SDFController : ControllerBase
     {
         private readonly ISDFService _SDFService;
-        private readonly IMapper _mapper;
 
-        public SDFController(ISDFService SDFService, IMapper mapper)
+        public SDFController(ISDFService SDFService)
         {
             _SDFService = SDFService;
-            _mapper = mapper;
+           
         }
 
         [Route("GetLastReleaseId")]
