@@ -34,4 +34,16 @@ namespace natura2000_portal_back.Models.release_db
                 .HasKey(c => new { c.ID });
         }
     }
+
+    [Keyless]
+    public class ReleasesExtended : Releases
+    {
+        public Boolean? DownloadReady { get; set; }
+        public Boolean Legacy { get; set; }
+
+        public static new void OnModelCreating(ModelBuilder builder)
+        {
+            builder.Entity<ReleasesExtended>();
+        }
+    }
 }

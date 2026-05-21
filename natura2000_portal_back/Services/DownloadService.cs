@@ -7,12 +7,7 @@ using Microsoft.Extensions.Options;
 using natura2000_portal_back.Data;
 using natura2000_portal_back.Hubs;
 using natura2000_portal_back.Models;
-using natura2000_portal_back.Models.release_db;
 using natura2000_portal_back.Models.ViewModel;
-using NuGet.Common;
-using NuGet.Protocol.Core.Types;
-using System;
-using System.Diagnostics.Metrics;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -21,15 +16,17 @@ namespace natura2000_portal_back.Services
     public class DownloadService : IDownloadService
     {
         private readonly N2KBackboneContext _dataContext;
+        private readonly N2KReleasesLegacyContext _releaseLegacyContext;
         private readonly N2KReleasesContext _releaseContext;
         private readonly IOptions<ConfigSettings> _appSettings;
         private readonly IInfoService _infoService;
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, IHubContext<ChatHub> hubContext, IOptions<ConfigSettings> app, IInfoService infoService)
+        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, N2KReleasesLegacyContext releaseLegacyContext, IHubContext<ChatHub> hubContext, IOptions<ConfigSettings> app, IInfoService infoService)
         {
             _dataContext = dataContext;
             _releaseContext = releaseContext;
+            _releaseLegacyContext = releaseLegacyContext;
             _appSettings = app;
             _infoService = infoService;
             _hubContext = hubContext;
@@ -194,11 +191,18 @@ namespace natura2000_portal_back.Services
 	            [HabitatName] [nvarchar](255) NULL,
 	            [SitesNumber] [int] NULL
             )";
-            SqlConnection con = new(_releaseContext.Database.GetConnectionString());
+            SqlConnection con = new();
+            if (releaseId < 100)
+                con = new(_releaseLegacyContext.Database.GetConnectionString());
+            else
+                con = new(_releaseContext.Database.GetConnectionString());
             con.Open();
             try
             {
-                await _releaseContext.Database.ExecuteSqlRawAsync(query);
+                if (releaseId < 100)
+                    await _releaseLegacyContext.Database.ExecuteSqlRawAsync(query);
+                else
+                    await _releaseContext.Database.ExecuteSqlRawAsync(query);
                 foreach (HabitatsParametered line in data)
                 {
                     string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([HabitatCode],[HabitatName],[SitesNumber])" +
@@ -260,11 +264,18 @@ namespace natura2000_portal_back.Services
 	            [SpeciesNumber] [int] NULL,
 	            [SensitiveSpecies] [nvarchar](5) NULL
             )";
-            SqlConnection con = new(_releaseContext.Database.GetConnectionString());
+            SqlConnection con = new();
+            if (releaseId < 100)
+                con = new(_releaseLegacyContext.Database.GetConnectionString());
+            else
+                con = new(_releaseContext.Database.GetConnectionString());
             con.Open();
             try
             {
-                await _releaseContext.Database.ExecuteSqlRawAsync(query);
+                if (releaseId < 100)
+                    await _releaseLegacyContext.Database.ExecuteSqlRawAsync(query);
+                else
+                    await _releaseContext.Database.ExecuteSqlRawAsync(query);
                 foreach (SitesParametered line in data)
                 {
                     string sensitiveText = line.IsSensitive == true ? "Yes" : "No";
@@ -332,11 +343,18 @@ namespace natura2000_portal_back.Services
 	            [SitesNumberSensitive] [int] NULL,
 	            [SensitiveSpecies] [nvarchar](5) NULL
             )";
-            SqlConnection con = new(_releaseContext.Database.GetConnectionString());
+            SqlConnection con = new();
+            if (releaseId < 100)
+                con = new(_releaseLegacyContext.Database.GetConnectionString());
+            else
+                con = new(_releaseContext.Database.GetConnectionString());
             con.Open();
             try
             {
-                await _releaseContext.Database.ExecuteSqlRawAsync(query);
+                if (releaseId < 100)
+                    await _releaseLegacyContext.Database.ExecuteSqlRawAsync(query);
+                else
+                    await _releaseContext.Database.ExecuteSqlRawAsync(query);
                 foreach (SpeciesParametered line in data)
                 {
                     string sensitiveText = line.IsSensitive == true ? "Yes" : "No";

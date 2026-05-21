@@ -13,5 +13,7 @@ namespace natura2000_portal_back.Models
 
     public interface IEntityModelReleasesDB { }
 
+    public interface IEntityModelProductionDB { }
+
     public interface IEntityModelBackboneReadOnlyDB { }
 }
