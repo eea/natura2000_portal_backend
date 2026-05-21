@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using natura2000_portal_back.ServiceResponse;
-using AutoMapper;
 using natura2000_portal_back.Services;
-using System.Runtime.CompilerServices;
+
 
 namespace natura2000_portal_back.Controllers
 {
@@ -10,13 +9,11 @@ namespace natura2000_portal_back.Controllers
     [ApiController]
     public class DownloadController : ControllerBase
     {
-        private readonly IDownloadService _downloadService;
-        private readonly IMapper _mapper;
+        private readonly IDownloadService _downloadService;        
 
-        public DownloadController(IDownloadService controllerDownload, IMapper mapper)
+        public DownloadController(IDownloadService controllerDownload)
         {
             _downloadService = controllerDownload;
-            _mapper = mapper;
         }
 
         [HttpGet("ComputingSAC")]
