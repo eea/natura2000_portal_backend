@@ -10,12 +10,14 @@ namespace natura2000_portal_back.Services
     public class InfoService : IInfoService
     {
         private readonly N2KBackboneContext _dataContext;
+        private readonly N2KReleasesLegacyContext _releaseLegacyContext;
         private readonly N2KReleasesContext _releaseContext;
 
-        public InfoService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext)
+        public InfoService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, N2KReleasesLegacyContext releaseLegacyContext)
         {
             _dataContext = dataContext;
             _releaseContext = releaseContext;
+            _releaseLegacyContext = releaseLegacyContext;
         }
 
         public async Task<List<ReleasesCatalog>> GetOfficialReleases(Boolean initialValidation, Boolean internalViewers, Boolean internalBarometer, Boolean internalPortalSDFSensitive, Boolean publicViewers, Boolean publicBarometer, Boolean sdfPublic, Boolean naturaOnlineList, Boolean productsCreated, Boolean jediDimensionCreated)
@@ -23,6 +25,7 @@ namespace natura2000_portal_back.Services
             try
             {
                 List<ReleaseVisibility> releaseVisibility = await _releaseContext.Set<ReleaseVisibility>().AsNoTracking().ToListAsync();
+                releaseVisibility.AddRange(await _releaseLegacyContext.Set<ReleaseVisibility>().AsNoTracking().ToListAsync());
                 #region filters
                 if (initialValidation)
                     releaseVisibility = releaseVisibility.Where(w => w.InitialValidation == true).ToList();
@@ -51,6 +54,10 @@ namespace natura2000_portal_back.Services
                     .Where(w => w.Final == true && releaseVisibilityIDs.Contains(w.ID))
                     .AsNoTracking()
                     .ToListAsync();
+                releases.AddRange(await _releaseLegacyContext.Set<Releases>()
+                    .Where(w => w.Final == true && releaseVisibilityIDs.Contains(w.ID))
+                    .AsNoTracking()
+                    .ToListAsync());
                 List<ReleasesCatalog> result = new();
                 foreach (Releases c in releases)
                 {
@@ -79,10 +86,19 @@ namespace natura2000_portal_back.Services
             try
             {
                 if (releaseId == null)
-                    releaseId = await _releaseContext.Set<Releases>().OrderByDescending(o => o.CreateDate).Select(s => s.ID).FirstOrDefaultAsync();
+                {
+                    List<Releases> releases = await _releaseContext.Set<Releases>().AsNoTracking().ToListAsync();
+                    releases.AddRange(await _releaseLegacyContext.Set<Releases>().AsNoTracking().ToListAsync());
+
+                    releaseId = releases.OrderByDescending(o => o.CreateDate).Select(s => s.ID).FirstOrDefault();
+                }
 
                 SqlParameter param1 = new("@releaseId", releaseId);
-                List<SitesParameteredExtended> result = await _releaseContext.Set<SitesParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredSites @releaseId", param1).AsNoTracking().ToListAsync();
+                List<SitesParameteredExtended> result = new();
+                if (releaseId < 100)
+                    result = await _releaseLegacyContext.Set<SitesParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredSites @releaseId", param1).AsNoTracking().ToListAsync();
+                else
+                    result = await _releaseContext.Set<SitesParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredSites @releaseId", param1).AsNoTracking().ToListAsync();
 
                 if (siteType != null)
                 {
@@ -143,10 +159,19 @@ namespace natura2000_portal_back.Services
             try
             {
                 if (releaseId == null)
-                    releaseId = await _releaseContext.Set<Releases>().OrderByDescending(o => o.CreateDate).Select(s => s.ID).FirstOrDefaultAsync();
+                {
+                    List<Releases> releases = await _releaseContext.Set<Releases>().AsNoTracking().ToListAsync();
+                    releases.AddRange(await _releaseLegacyContext.Set<Releases>().AsNoTracking().ToListAsync());
+
+                    releaseId = releases.OrderByDescending(o => o.CreateDate).Select(s => s.ID).FirstOrDefault();
+                }
 
                 SqlParameter param1 = new("@releaseId", releaseId);
-                List<HabitatsParameteredExtended> result = await _releaseContext.Set<HabitatsParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredHabitats @releaseId", param1).AsNoTracking().ToListAsync();
+                List<HabitatsParameteredExtended> result = new();
+                if (releaseId < 100)
+                    result = await _releaseLegacyContext.Set<HabitatsParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredHabitats @releaseId", param1).AsNoTracking().ToListAsync();
+                else
+                    result = await _releaseContext.Set<HabitatsParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredHabitats @releaseId", param1).AsNoTracking().ToListAsync();
 
                 if (habitatGroup != null)
                 {
@@ -198,10 +223,19 @@ namespace natura2000_portal_back.Services
             try
             {
                 if (releaseId == null)
-                    releaseId = await _releaseContext.Set<Releases>().OrderByDescending(o => o.CreateDate).Select(s => s.ID).FirstOrDefaultAsync();
+                {
+                    List<Releases> releases = await _releaseContext.Set<Releases>().AsNoTracking().ToListAsync();
+                    releases.AddRange(await _releaseLegacyContext.Set<Releases>().AsNoTracking().ToListAsync());
+
+                    releaseId = releases.OrderByDescending(o => o.CreateDate).Select(s => s.ID).FirstOrDefault();
+                }
 
                 SqlParameter param1 = new("@releaseId", releaseId);
-                List<SpeciesParameteredExtended> result = await _releaseContext.Set<SpeciesParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredSpecies @releaseId", param1).AsNoTracking().ToListAsync();
+                List<SpeciesParameteredExtended> result = new();
+                if (releaseId < 100)
+                    result = await _releaseLegacyContext.Set<SpeciesParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredSpecies @releaseId", param1).AsNoTracking().ToListAsync();
+                else
+                    result = await _releaseContext.Set<SpeciesParameteredExtended>().FromSqlRaw($"exec dbo.GetParameteredSpecies @releaseId", param1).AsNoTracking().ToListAsync();
 
                 if (speciesGroup != null)
                 {
@@ -263,17 +297,38 @@ namespace natura2000_portal_back.Services
             try
             {
                 List<long> releaseVisibilityIDs = await _releaseContext.Set<ReleaseVisibility>().Where(w => w.InternalPortalSDFSensitive == true).Select(s => s.ReleaseID).ToListAsync();
+                releaseVisibilityIDs.AddRange(await _releaseLegacyContext.Set<ReleaseVisibility>().Where(w => w.InternalPortalSDFSensitive == true).Select(s => s.ReleaseID).ToListAsync());
 
-                Releases release = await _releaseContext.Set<Releases>().Where(w => w.Final == true && releaseVisibilityIDs.Contains(w.ID)).OrderByDescending(o => o.CreateDate).AsNoTracking().FirstOrDefaultAsync();
+                List<Releases> releases = await _releaseContext.Set<Releases>().AsNoTracking().ToListAsync();
+                releases.AddRange(await _releaseLegacyContext.Set<Releases>().AsNoTracking().ToListAsync());
 
-                //List<NATURA2000SITES> sites = await _releaseContext.Set<NATURA2000SITES>().Where(w => w.ReleaseId == release.ID).AsNoTracking().ToListAsync();
-                List<string> sites = await _releaseContext.Set<NATURA2000SITES>().Where(w => w.ReleaseId == release.ID).Select(s => s.SITECODE.ToUpper()).AsNoTracking().ToListAsync();
+                Releases release = releases.Where(w => w.Final == true && releaseVisibilityIDs.Contains(w.ID)).OrderByDescending(o => o.CreateDate).FirstOrDefault();
 
-                //List<HABITATS> habitats = await _releaseContext.Set<HABITATS>().Where(w => w.ReleaseId == release.ID).AsNoTracking().ToListAsync();
-                List<string> habitats = await _releaseContext.Set<HABITATS>().Where(w => w.ReleaseId == release.ID).Select(s => s.HABITATCODE.ToUpper()).AsNoTracking().ToListAsync();
+                List<string> sites = [];
+                List<string> habitats = [];
+                List<string> species = [];
+                if (release.ID < 100)
+                {
+                    //List<NATURA2000SITES> sites = await _releaseLegacyContext.Set<NATURA2000SITES>().Where(w => w.ReleaseId == release.ID).AsNoTracking().ToListAsync();
+                    sites = await _releaseLegacyContext.Set<NATURA2000SITES>().Where(w => w.ReleaseId == release.ID).Select(s => s.SITECODE.ToUpper()).AsNoTracking().ToListAsync();
 
-                //List<SPECIES> species = await _releaseContext.Set<SPECIES>().Where(w => w.ReleaseId == release.ID).AsNoTracking().ToListAsync();
-                List<string> species = await _releaseContext.Set<SPECIES>().Where(w => w.ReleaseId == release.ID).Select(s => s.SPECIESCODE.ToUpper()).AsNoTracking().ToListAsync();
+                    //List<HABITATS> habitats = await _releaseLegacyContext.Set<HABITATS>().Where(w => w.ReleaseId == release.ID).AsNoTracking().ToListAsync();
+                    habitats = await _releaseLegacyContext.Set<HABITATS>().Where(w => w.ReleaseId == release.ID).Select(s => s.HABITATCODE.ToUpper()).AsNoTracking().ToListAsync();
+
+                    //List<SPECIES> species = await _releaseLegacyContext.Set<SPECIES>().Where(w => w.ReleaseId == release.ID).AsNoTracking().ToListAsync();
+                    species = await _releaseLegacyContext.Set<SPECIES>().Where(w => w.ReleaseId == release.ID).Select(s => s.SPECIESCODE.ToUpper()).AsNoTracking().ToListAsync();
+                }
+                else
+                {
+                    //List<NATURA2000SITES> sites = await _releaseContext.Set<Natura2000Sites>().Where(w => w.ReleaseId == release.ID).AsNoTracking().ToListAsync();
+                    sites = await _releaseContext.Set<Natura2000Sites>().Where(w => w.releaseId == release.ID).Select(s => s.F_1_2_site_code.ToUpper()).AsNoTracking().ToListAsync();
+
+                    //List<HABITATS> habitats = await _releaseContext.Set<Habitats>().Where(w => w.ReleaseId == release.ID).AsNoTracking().ToListAsync();
+                    habitats = await _releaseContext.Set<Habitats>().Where(w => w.releaseId == release.ID).Select(s => s.F_3_1_1_habitat_code.ToUpper()).AsNoTracking().ToListAsync();
+
+                    //List<SPECIES> species = await _releaseContext.Set<Species>().Where(w => w.ReleaseId == release.ID).AsNoTracking().ToListAsync();
+                    species = await _releaseContext.Set<Species>().Where(w => w.releaseId == release.ID).Select(s => s.F_3_2_2_species_code.ToUpper()).AsNoTracking().ToListAsync();
+                }
 
                 ReleaseCounters result = new()
                 {
@@ -297,12 +352,13 @@ namespace natura2000_portal_back.Services
             try
             {
                 List<CountrySubmissions> result = new List<CountrySubmissions> { };
-                
+
                 List<CountrySubmissionsDB> submissionsdb = await _releaseContext.Set<CountrySubmissionsDB>().FromSqlRaw($"exec dbo.GetCountrySubmissions").AsNoTracking().ToListAsync();
+                submissionsdb.AddRange(await _releaseLegacyContext.Set<CountrySubmissionsDB>().FromSqlRaw($"exec dbo.GetCountrySubmissions").AsNoTracking().ToListAsync());
 
                 foreach (var submission in submissionsdb)
                 {
-                    if (result.Any(s=> s.CountryCode== submission.CountryCode))
+                    if (result.Any(s => s.CountryCode == submission.CountryCode))
                     {
                         result.FirstOrDefault(s => s.CountryCode == submission.CountryCode).Submissions.Add(
                             new Submission
@@ -324,7 +380,7 @@ namespace natura2000_portal_back.Services
                         CountrySubmissions cSub = new CountrySubmissions
                         {
                             CountryCode = submission.CountryCode,
-                            Submissions= _subList
+                            Submissions = _subList
                         };
                         result.Add(cSub);
                     }
