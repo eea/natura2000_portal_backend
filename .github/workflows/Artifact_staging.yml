@@ -32,8 +32,8 @@ jobs:
           $appSettings = "natura2000_portal_back\appsettings.json"
 
           (Get-Content $appSettings) `
-            -replace '\$\{BackboneDB_ConnectionString\}', '${{ secrets.N2K_BACKBONE_CONNSTRING }}' `
-            -replace '\$\{ReleasesDB_ConnectionString\}', '${{ secrets.N2K_RELEASES_CONNSTRING }}' `
+            -replace '\$\{BackboneDB_ConnectionString\}', '${{ secrets.BACKBONEDB_CONNECTIONSTRING }}' `
+            -replace '\$\{ReleasesDB_ConnectionString\}', '${{ secrets.RELEASESDB_CONNECTIONSTRING }}' `
             -replace '\$\{Releases_LegacyDB_ConnectionString\}', '${{ secrets.N2K_RELEASES_LEGACY_CONNSTRING }}' `
             -replace '\$\{ProductionDB_ConnectionString\}', '${{ secrets.N2K_PRODUCTION_CONNSTRING }}' `
             -replace '\$\{FME_TOKEN\}', '${{ secrets.FME_TOKEN }}' `
