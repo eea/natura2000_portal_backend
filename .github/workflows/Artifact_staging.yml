@@ -17,12 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up .NET Core
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
 
       - name: copy config
         run: |
@@ -30,21 +27,27 @@ jobs:
           del natura2000_portal_back/Configs/*.json
           rmdir natura2000_portal_back/Configs
 
+      - name: Replace placeholders with secrets
+        run: |
+          $appSettings = "natura2000_portal_back\appsettings.json"
+
+          (Get-Content $appSettings) `
+            -replace '\$\{BackboneDB_ConnectionString\}', '${{ secrets.N2K_BACKBONE_CONNSTRING }}' `
+            -replace '\$\{ReleasesDB_ConnectionString\}', '${{ secrets.N2K_RELEASES_CONNSTRING }}' `
+            -replace '\$\{Releases_LegacyDB_ConnectionString\}', '${{ secrets.N2K_RELEASES_LEGACY_CONNSTRING }}' `
+            -replace '\$\{ProductionDB_ConnectionString\}', '${{ secrets.N2K_PRODUCTION_CONNSTRING }}' `
+            -replace '\$\{FME_TOKEN\}', '${{ secrets.FME_TOKEN }}' `
+            | Set-Content $appSettings  
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release
+
       - name: dotnet publish
         shell: pwsh
         run: |
           $publishDir = "C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp"
           # Publish project
           dotnet publish -c Release --property:PublishDir=$publishDir
-
-          # Create multi-line .env file
-          @"
-          BackboneDB_ConnectionString=${{ secrets.BACKBONEDB_CONNECTIONSTRING }}
-          ReleasesDB_ConnectionString=${{ secrets.RELEASESDB_CONNECTIONSTRING }}
-          Releases_LegacyDB_ConnectionString=${{ secrets.N2K_RELEASES_LEGACY_CONNSTRING }}
-          ProductionDB_ConnectionString=${{ secrets.N2K_PRODUCTION_CONNSTRING }}          
-          FME_TOKEN=${{ secrets.FME_TOKEN }}
-          "@ | Out-File -FilePath "$publishDir\env" -Encoding utf8                
 
       - name: Upload artifact for deployment job in Staging
         uses: actions/upload-artifact@v4
