@@ -615,8 +615,8 @@ namespace natura2000_portal_back.Services
                 string booleanUnchecked = "";
                 ReleaseSDFLegacy result = new();
 
-                List<ReleaseVisibility> releaseVisibility = await _releaseLegacyContext.Set<ReleaseVisibility>().AsNoTracking().ToListAsync();
-                releaseVisibility.AddRange(await _releaseContext.Set<ReleaseVisibility>().AsNoTracking().ToListAsync());
+                List<ReleaseVisibility> releaseVisibility = await _releaseContext.Set<ReleaseVisibility>().AsNoTracking().ToListAsync();
+                releaseVisibility.AddRange(await _releaseLegacyContext.Set<ReleaseVisibility>().AsNoTracking().ToListAsync());
                 #region filters
                 if (initialValidation)
                     releaseVisibility = [.. releaseVisibility.Where(w => w.InitialValidation == true)];
@@ -644,21 +644,7 @@ namespace natura2000_portal_back.Services
                 if (releaseVisibilityIDs == null || releaseVisibilityIDs.Count == 0)
                     return result;
 
-                List<ReleasesExtended> releases = await _releaseLegacyContext.Set<Releases>().Where(w => releaseVisibilityIDs.Contains(w.ID)).AsNoTracking()
-                    .Select(r => new ReleasesExtended
-                    {
-                        ID = r.ID,
-                        Title = r.Title,
-                        Author = r.Author,
-                        CreateDate = r.CreateDate,
-                        Final = r.Final,
-                        ModifyUser = r.ModifyUser,
-                        ModifyDate = r.ModifyDate,
-                        Character = r.Character,
-                        Legacy = true
-                    })
-                    .ToListAsync();
-                releases.AddRange(await _releaseContext.Set<Releases>().Where(w => releaseVisibilityIDs.Contains(w.ID)).AsNoTracking()
+                List<ReleasesExtended> releases = await _releaseContext.Set<Releases>().Where(w => releaseVisibilityIDs.Contains(w.ID)).AsNoTracking()
                     .Select(r => new ReleasesExtended
                     {
                         ID = r.ID,
@@ -670,6 +656,20 @@ namespace natura2000_portal_back.Services
                         ModifyDate = r.ModifyDate,
                         Character = r.Character,
                         Legacy = false
+                    })
+                    .ToListAsync();
+                releases.AddRange(await _releaseLegacyContext.Set<Releases>().Where(w => releaseVisibilityIDs.Contains(w.ID)).AsNoTracking()
+                    .Select(r => new ReleasesExtended
+                    {
+                        ID = r.ID,
+                        Title = r.Title,
+                        Author = r.Author,
+                        CreateDate = r.CreateDate,
+                        Final = r.Final,
+                        ModifyUser = r.ModifyUser,
+                        ModifyDate = r.ModifyDate,
+                        Character = r.Character,
+                        Legacy = true
                     })
                     .ToListAsync());
                 Releases? release = null;
