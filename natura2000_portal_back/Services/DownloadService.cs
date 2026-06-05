@@ -53,7 +53,7 @@ namespace natura2000_portal_back.Services
                 client.DefaultRequestHeaders.Accept.Add(
                     new MediaTypeWithQualityHeaderValue("*/*"));
                 client.DefaultRequestHeaders.Add("Authorization", $"fmetoken token={_appSettings.Value.fme_security_token}");
-                
+
                 // Prepare request body exactly as in your curl
 
                 string body = string.Format(@"{{
@@ -66,7 +66,7 @@ namespace natura2000_portal_back.Services
                     ""Environment"":""{5}"",
                     ""EMail"": ""{6}""
                     }}
-                    }}", repository, workspace, releaseId, _appSettings.Value.SACComputationDestDatasetFolder, $"SAC_Computation_Release_{releaseId}" , _appSettings.Value.Environment, email);
+                    }}", repository, workspace, releaseId, _appSettings.Value.SACComputationDestDatasetFolder, $"SAC_Computation_Release_{releaseId}", _appSettings.Value.Environment, email);
 
 
                 HttpRequestMessage request = new(HttpMethod.Post, fmeFlowBaseUrl)
@@ -124,7 +124,7 @@ namespace natura2000_portal_back.Services
                     ""VersionFrom"":""{4}"", 
                     ""EMail"":""{5}"" 
                     }}
-                    }}", repository, workspace, CountryCode,VersionTo ,VersionFrom,email);
+                    }}", repository, workspace, CountryCode, VersionTo, VersionFrom, email);
 
                 HttpRequestMessage request = new(HttpMethod.Post, fmeFlowBaseUrl)
                 {
@@ -152,7 +152,7 @@ namespace natura2000_portal_back.Services
             }
         }
         public async Task<FileContentResult> SpatialDataSDI(long releaseId)
-        {                    
+        {
             HttpClient client = new();
             String serverUrl = String.Format(_appSettings.Value.fme_service_spatial_data_sdi, _appSettings.Value.Environment, releaseId, _appSettings.Value.fme_security_token);
             try
@@ -178,7 +178,7 @@ namespace natura2000_portal_back.Services
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("End SpatialDataSDI generation"), "DownloadService - SpatialDataSDI", "", _dataContext.Database.GetConnectionString());
                 client.Dispose();
             }
-           
+
         }
 
         public async Task<FileContentResult> HabitatsSearchResults(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitat)
@@ -192,17 +192,11 @@ namespace natura2000_portal_back.Services
 	            [SitesNumber] [int] NULL
             )";
             SqlConnection con = new();
-            if (releaseId < 100)
-                con = new(_releaseLegacyContext.Database.GetConnectionString());
-            else
-                con = new(_releaseContext.Database.GetConnectionString());
+            con = new(_releaseContext.Database.GetConnectionString());
             con.Open();
             try
             {
-                if (releaseId < 100)
-                    await _releaseLegacyContext.Database.ExecuteSqlRawAsync(query);
-                else
-                    await _releaseContext.Database.ExecuteSqlRawAsync(query);
+                await _releaseContext.Database.ExecuteSqlRawAsync(query);
                 foreach (HabitatsParametered line in data)
                 {
                     string insertQuery = "INSERT INTO [dbo].[" + tableName + "]([HabitatCode],[HabitatName],[SitesNumber])" +
@@ -265,17 +259,11 @@ namespace natura2000_portal_back.Services
 	            [SensitiveSpecies] [nvarchar](5) NULL
             )";
             SqlConnection con = new();
-            if (releaseId < 100)
-                con = new(_releaseLegacyContext.Database.GetConnectionString());
-            else
-                con = new(_releaseContext.Database.GetConnectionString());
+            con = new(_releaseContext.Database.GetConnectionString());
             con.Open();
             try
             {
-                if (releaseId < 100)
-                    await _releaseLegacyContext.Database.ExecuteSqlRawAsync(query);
-                else
-                    await _releaseContext.Database.ExecuteSqlRawAsync(query);
+                await _releaseContext.Database.ExecuteSqlRawAsync(query);
                 foreach (SitesParametered line in data)
                 {
                     string sensitiveText = line.IsSensitive == true ? "Yes" : "No";
@@ -344,17 +332,11 @@ namespace natura2000_portal_back.Services
 	            [SensitiveSpecies] [nvarchar](5) NULL
             )";
             SqlConnection con = new();
-            if (releaseId < 100)
-                con = new(_releaseLegacyContext.Database.GetConnectionString());
-            else
-                con = new(_releaseContext.Database.GetConnectionString());
+            con = new(_releaseContext.Database.GetConnectionString());
             con.Open();
             try
             {
-                if (releaseId < 100)
-                    await _releaseLegacyContext.Database.ExecuteSqlRawAsync(query);
-                else
-                    await _releaseContext.Database.ExecuteSqlRawAsync(query);
+                await _releaseContext.Database.ExecuteSqlRawAsync(query);
                 foreach (SpeciesParametered line in data)
                 {
                     string sensitiveText = line.IsSensitive == true ? "Yes" : "No";
