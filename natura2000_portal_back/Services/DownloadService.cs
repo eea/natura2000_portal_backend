@@ -221,7 +221,7 @@ namespace natura2000_portal_back.Services
             String serverUrl = String.Format(_appSettings.Value.fme_service_results_download, _appSettings.Value.Environment, "habitats", tableName, _appSettings.Value.fme_security_token);
             try
             {
-                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("Start HabitatsSearchResults generation"), "DownloadService - HabitatsSearchResults", "", _dataContext.Database.GetConnectionString());
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("Start HabitatsSearchResults generation: {0}", serverUrl), "DownloadService - HabitatsSearchResults", "", _dataContext.Database.GetConnectionString());
                 client.Timeout = TimeSpan.FromHours(5);
                 Task<HttpResponseMessage> response = client.GetAsync(serverUrl, HttpCompletionOption.ResponseHeadersRead);
                 Stream content = await response.Result.Content.ReadAsStreamAsync(); //  .ReadAsStringAsync();
