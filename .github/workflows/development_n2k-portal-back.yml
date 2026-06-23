@@ -75,7 +75,7 @@ jobs:
         with:
           app-name: 'n2k-portal-back'
           slot-name: 'Production'
-		  publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_318DBE1B2E4D4CC194F7EACB090051A8 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_318DBE1B2E4D4CC194F7EACB090051A8 }}
           package: .
   delete:
     runs-on: windows-latest
