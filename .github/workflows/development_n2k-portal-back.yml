@@ -1,7 +1,7 @@
 # Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
 # More GitHub Actions for Azure: https://github.com/Azure/actions
 
-name: Build and deploy ASP.Net Core app to Azure Web App - n2k-portal-backend
+name: Build and deploy ASP.Net Core app to Azure Web App - n2k-portal-back
 
 on:
   push:
@@ -12,78 +12,44 @@ on:
 jobs:
   build:
     runs-on: windows-latest
-    environment: Development
-      
+    permissions:
+      contents: read #This is required for actions/checkout
+
     steps:
       - uses: actions/checkout@v4
+
       - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
-      
-      - name: copy config
-        run: |
-          copy natura2000_portal_back/Configs/appsettings_dev.json natura2000_portal_back/appsettings.json  
-          del natura2000_portal_back/Configs/*.json
-          rmdir natura2000_portal_back/Configs
-
-      - name: Replace placeholders with secrets
-        run: |
-          $appSettings = "natura2000_portal_back\appsettings.json"
-
-          (Get-Content $appSettings) `
-            -replace '\$\{BackboneDB_ConnectionString\}', '${{ secrets.BACKBONEDB_CONNECTIONSTRING }}' `
-            -replace '\$\{ReleasesDB_ConnectionString\}', '${{ secrets.RELEASESDB_CONNECTIONSTRING }}' `
-            -replace '\$\{Releases_LegacyDB_ConnectionString\}', '${{ secrets.N2K_RELEASES_LEGACY_CONNSTRING }}' `
-            -replace '\$\{ProductionDB_ConnectionString\}', '${{ secrets.N2K_PRODUCTION_CONNSTRING }}' `
-            -replace '\$\{FME_TOKEN\}', '${{ secrets.FME_TOKEN }}' `
-            | Set-Content $appSettings          
+          dotnet-version: '8.x'
 
       - name: Build with dotnet
-        run: dotnet build --configuration Release          
+        run: dotnet build --configuration Release
 
       - name: dotnet publish
-        shell: pwsh
-        run: |
-          $publishDir = "C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp"
-          # Publish project
-          dotnet publish -c Release --property:PublishDir=$publishDir
-
+        run: dotnet publish -c Release -o "${{env.DOTNET_ROOT}}/myapp"
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
           name: .net-app
-          path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+          path: ${{env.DOTNET_ROOT}}/myapp
 
   deploy:
     runs-on: windows-latest
     needs: build
-    environment:
-      name: 'Production'
-      url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
-
+    
     steps:
       - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
           name: .net-app
-
+      
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'n2k-portal-back'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_71F1A85C334548A08092BE0DA6A30293 }}
           package: .
-  delete:
-    runs-on: windows-latest
-    needs: deploy
-    steps:
-      - name: Delete Old Artifacts
-        id: artifact
-        uses: geekyeggo/delete-artifact@v5
-        with:
-          name: .net-app  
-
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_318DBE1B2E4D4CC194F7EACB090051A8 }}
