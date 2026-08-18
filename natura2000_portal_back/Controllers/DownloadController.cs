@@ -175,7 +175,7 @@ namespace natura2000_portal_back.Controllers
 
 
         [HttpGet("SubmissionComparer")]
-        public async Task<ActionResult<ServiceResponse<int>>> SubmissionComparer(string CountryCode, int VersionFrom,int VersionTo, string email)
+        public async Task<ActionResult<ServiceResponse<int>>> SubmissionComparer(string CountryCode, int VersionFrom, int VersionTo, string email)
         {
             var response = new ServiceResponse<int>();
             try
@@ -198,6 +198,27 @@ namespace natura2000_portal_back.Controllers
         }
 
 
-
+        [HttpGet("SufficiencyHabitatsSpecies")]
+        public async Task<ActionResult<ServiceResponse<int>>> SufficiencyHabitatsSpecies(string CountryCode, int CountryVersionId, string MailNotifier)
+        {
+            var response = new ServiceResponse<int>();
+            try
+            {
+                var data = await _downloadService.SufficiencyHabitatsSpecies(CountryCode, CountryVersionId, MailNotifier);
+                response.Success = true;
+                response.Message = "";
+                response.Data = data;
+                response.Count = 1;
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                response.Success = false;
+                response.Message = ex.Message;
+                response.Count = 0;
+                response.Data = 0;
+                return Ok(response);
+            }
+        }
     }
 }
