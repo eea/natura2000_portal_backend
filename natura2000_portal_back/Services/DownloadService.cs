@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.CodeAnalysis;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -477,6 +476,61 @@ namespace natura2000_portal_back.Services
                     ms.Write(buffer, 0, read);
                 }
                 return ms.ToArray();
+            }
+        }
+
+        public async Task<int> SufficiencyHabitatsSpecies(string CountryCode, int CountryVersionId, string MailNotifier)
+        {
+            string fmeFlowBaseUrl = _appSettings.Value.fme_sufficiency.server_url;
+            string repository = _appSettings.Value.fme_sufficiency.repository;
+            string workspace = _appSettings.Value.fme_sufficiency.workspace;
+
+            HttpClient client = new HttpClient();
+            try
+            {
+                client.Timeout = TimeSpan.FromHours(5);
+                // Add headers
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("*/*"));
+                client.DefaultRequestHeaders.Add("Authorization", $"fmetoken token={_appSettings.Value.fme_security_token}");
+
+
+                string url = "https://fme.discomap.eea.europa.eu/fmeapiv4/jobs";
+                // Prepare request body exactly as in your curl
+
+                string body = string.Format(@"{{
+                ""repository"":""{0}"",
+                ""workspace"":""{1}"",
+                ""publishedParameters"":{{
+                ""countryCode"":""{2}"",
+                ""CountryVersionId"":""{3}"",
+                ""EMail"":""{4}""
+                }}
+                }}", repository, workspace, CountryCode, CountryVersionId, MailNotifier);
+
+                HttpRequestMessage request = new(HttpMethod.Post, fmeFlowBaseUrl)
+                {
+                    Content = new StringContent(body, Encoding.UTF8, "application/json")//CONTENT-TYPE header
+                };
+
+                //call the FME script in async 
+                var res = await client.SendAsync(request);
+                //get the JobId 
+                var json = await res.Content.ReadAsStringAsync();
+                var response_dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+
+                string jobId = response_dict["id"].ToString();
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("FME SufficiencyHabitatsSpecies Launched with jobId:{0}", jobId), "SufficiencyHabitatsSpecies", "", _dataContext.Database.GetConnectionString());
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, String.Format("Error Launching FME:{0}", ex.Message), "DownloadService - SufficiencyHabitatsSpecies", "", _dataContext.Database.GetConnectionString());
+                return 0;
+            }
+            finally
+            {
+                client.Dispose();
             }
         }
     }
