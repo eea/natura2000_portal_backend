@@ -1,18 +1,12 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
-using Microsoft.CodeAnalysis;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using natura2000_portal_back.Data;
 using natura2000_portal_back.Hubs;
 using natura2000_portal_back.Models;
-using natura2000_portal_back.Models.release_db;
 using natura2000_portal_back.Models.ViewModel;
-using NuGet.Common;
-using NuGet.Protocol.Core.Types;
-using System;
-using System.Diagnostics.Metrics;
 using System.Net.Http.Headers;
 using System.Text;
 
@@ -21,15 +15,17 @@ namespace natura2000_portal_back.Services
     public class DownloadService : IDownloadService
     {
         private readonly N2KBackboneContext _dataContext;
+        private readonly N2KReleasesLegacyContext _releaseLegacyContext;
         private readonly N2KReleasesContext _releaseContext;
         private readonly IOptions<ConfigSettings> _appSettings;
         private readonly IInfoService _infoService;
         private readonly IHubContext<ChatHub> _hubContext;
 
-        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, IHubContext<ChatHub> hubContext, IOptions<ConfigSettings> app, IInfoService infoService)
+        public DownloadService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, N2KReleasesLegacyContext releaseLegacyContext, IHubContext<ChatHub> hubContext, IOptions<ConfigSettings> app, IInfoService infoService)
         {
             _dataContext = dataContext;
             _releaseContext = releaseContext;
+            _releaseLegacyContext = releaseLegacyContext;
             _appSettings = app;
             _infoService = infoService;
             _hubContext = hubContext;
@@ -56,7 +52,7 @@ namespace natura2000_portal_back.Services
                 client.DefaultRequestHeaders.Accept.Add(
                     new MediaTypeWithQualityHeaderValue("*/*"));
                 client.DefaultRequestHeaders.Add("Authorization", $"fmetoken token={_appSettings.Value.fme_security_token}");
-                
+
                 // Prepare request body exactly as in your curl
 
                 string body = string.Format(@"{{
@@ -69,7 +65,7 @@ namespace natura2000_portal_back.Services
                     ""Environment"":""{5}"",
                     ""EMail"": ""{6}""
                     }}
-                    }}", repository, workspace, releaseId, _appSettings.Value.SACComputationDestDatasetFolder, $"SAC_Computation_Release_{releaseId}" , _appSettings.Value.Environment, email);
+                    }}", repository, workspace, releaseId, _appSettings.Value.SACComputationDestDatasetFolder, $"SAC_Computation_Release_{releaseId}", _appSettings.Value.Environment, email);
 
 
                 HttpRequestMessage request = new(HttpMethod.Post, fmeFlowBaseUrl)
@@ -127,7 +123,7 @@ namespace natura2000_portal_back.Services
                     ""VersionFrom"":""{4}"", 
                     ""EMail"":""{5}"" 
                     }}
-                    }}", repository, workspace, CountryCode,VersionTo ,VersionFrom,email);
+                    }}", repository, workspace, CountryCode, VersionTo, VersionFrom, email);
 
                 HttpRequestMessage request = new(HttpMethod.Post, fmeFlowBaseUrl)
                 {
@@ -155,7 +151,7 @@ namespace natura2000_portal_back.Services
             }
         }
         public async Task<FileContentResult> SpatialDataSDI(long releaseId)
-        {                    
+        {
             HttpClient client = new();
             String serverUrl = String.Format(_appSettings.Value.fme_service_spatial_data_sdi, _appSettings.Value.Environment, releaseId, _appSettings.Value.fme_security_token);
             try
@@ -181,7 +177,7 @@ namespace natura2000_portal_back.Services
                 await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("End SpatialDataSDI generation"), "DownloadService - SpatialDataSDI", "", _dataContext.Database.GetConnectionString());
                 client.Dispose();
             }
-           
+
         }
 
         public async Task<FileContentResult> HabitatsSearchResults(long? releaseId, string? habitatGroup, string? country, string? bioregion, string? habitat)
@@ -194,7 +190,8 @@ namespace natura2000_portal_back.Services
 	            [HabitatName] [nvarchar](255) NULL,
 	            [SitesNumber] [int] NULL
             )";
-            SqlConnection con = new(_releaseContext.Database.GetConnectionString());
+            SqlConnection con = new();
+            con = new(_releaseContext.Database.GetConnectionString());
             con.Open();
             try
             {
@@ -260,7 +257,8 @@ namespace natura2000_portal_back.Services
 	            [SpeciesNumber] [int] NULL,
 	            [SensitiveSpecies] [nvarchar](5) NULL
             )";
-            SqlConnection con = new(_releaseContext.Database.GetConnectionString());
+            SqlConnection con = new();
+            con = new(_releaseContext.Database.GetConnectionString());
             con.Open();
             try
             {
@@ -332,7 +330,8 @@ namespace natura2000_portal_back.Services
 	            [SitesNumberSensitive] [int] NULL,
 	            [SensitiveSpecies] [nvarchar](5) NULL
             )";
-            SqlConnection con = new(_releaseContext.Database.GetConnectionString());
+            SqlConnection con = new();
+            con = new(_releaseContext.Database.GetConnectionString());
             con.Open();
             try
             {
@@ -477,6 +476,61 @@ namespace natura2000_portal_back.Services
                     ms.Write(buffer, 0, read);
                 }
                 return ms.ToArray();
+            }
+        }
+
+        public async Task<int> SufficiencyHabitatsSpecies(string CountryCode, int CountryVersionId, string MailNotifier)
+        {
+            string fmeFlowBaseUrl = _appSettings.Value.fme_sufficiency.server_url;
+            string repository = _appSettings.Value.fme_sufficiency.repository;
+            string workspace = _appSettings.Value.fme_sufficiency.workspace;
+
+            HttpClient client = new HttpClient();
+            try
+            {
+                client.Timeout = TimeSpan.FromHours(5);
+                // Add headers
+                client.DefaultRequestHeaders.Accept.Add(
+                    new MediaTypeWithQualityHeaderValue("*/*"));
+                client.DefaultRequestHeaders.Add("Authorization", $"fmetoken token={_appSettings.Value.fme_security_token}");
+
+
+                string url = "https://fme.discomap.eea.europa.eu/fmeapiv4/jobs";
+                // Prepare request body exactly as in your curl
+
+                string body = string.Format(@"{{
+                ""repository"":""{0}"",
+                ""workspace"":""{1}"",
+                ""publishedParameters"":{{
+                ""countryCode"":""{2}"",
+                ""CountryVersionId"":""{3}"",
+                ""EMail"":""{4}""
+                }}
+                }}", repository, workspace, CountryCode, CountryVersionId, MailNotifier);
+
+                HttpRequestMessage request = new(HttpMethod.Post, fmeFlowBaseUrl)
+                {
+                    Content = new StringContent(body, Encoding.UTF8, "application/json")//CONTENT-TYPE header
+                };
+
+                //call the FME script in async 
+                var res = await client.SendAsync(request);
+                //get the JobId 
+                var json = await res.Content.ReadAsStringAsync();
+                var response_dict = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(json);
+
+                string jobId = response_dict["id"].ToString();
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Info, string.Format("FME SufficiencyHabitatsSpecies Launched with jobId:{0}", jobId), "SufficiencyHabitatsSpecies", "", _dataContext.Database.GetConnectionString());
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                await SystemLog.WriteAsync(SystemLog.errorLevel.Error, String.Format("Error Launching FME:{0}", ex.Message), "DownloadService - SufficiencyHabitatsSpecies", "", _dataContext.Database.GetConnectionString());
+                return 0;
+            }
+            finally
+            {
+                client.Dispose();
             }
         }
     }

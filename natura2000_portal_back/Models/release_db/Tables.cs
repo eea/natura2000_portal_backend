@@ -2,521 +2,359 @@
 
 namespace natura2000_portal_back.Models.release_db
 {
-    public class BIOREGION : IEntityModel, IEntityModelReleasesDB
+    public class AdministrativeRegion : IEntityModel, IEntityModelReleasesDB
     {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string SITECODE { get; set; } = string.Empty;
-        public string BIOGEOGRAPHICREG { get; set; } = string.Empty;
-        public double? PERCENTAGE { get; set; }
+        public long id { get; set; }
+        public long releaseId { get; set; }
+        public string site_code { get; set; } = string.Empty;
+        public string? F_2_2_1_site_nutscode { get; set; }
+        public string? F_2_2_2_site_nutsname { get; set; }
 
         private string dbConnection = string.Empty;
 
-        public BIOREGION() { }
+        public AdministrativeRegion() { }
 
-        public BIOREGION(string db)
+        public AdministrativeRegion(string db)
         {
             dbConnection = db;
         }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<BIOREGION>()
-                .ToTable("BIOREGION")
-                .HasKey(c => new { c.ID });
-        }
-    }
-    public class CONTACTS : IEntityModel, IEntityModelReleasesDB
-    {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string SITECODE { get; set; } = string.Empty;
-        public string? NAME { get; set; }
-        public string? EMAIL { get; set; }
-        public string? ADDRESS_UNSTRUCTURED { get; set; }
-        public string? ADMINUNIT { get; set; }
-        public string? THOROUGHFARE { get; set; }
-        public string? DESIGNATOR { get; set; }
-        public string? POSTCODE { get; set; }
-        public string? POSTNAME { get; set; }
-        public string? ADDRESS { get; set; }
-        public string? LOCATORNAME { get; set; }
-
-        private string dbConnection = string.Empty;
-
-        public CONTACTS() { }
-
-        public CONTACTS(string db)
-        {
-            dbConnection = db;
-        }
-
-        public static void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<CONTACTS>()
-                .ToTable("CONTACTS")
-                .HasKey(c => new { c.ID });
+            builder.Entity<AdministrativeRegion>()
+                .ToTable("AdministrativeRegion", schema: "data")
+                .HasKey(c => new { c.id });
         }
     }
 
-    public class DESIGNATIONSTATUS : IEntityModel, IEntityModelReleasesDB
+    public class BiogeographicalMarineRegions : IEntityModel, IEntityModelReleasesDB
     {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string SITECODE { get; set; } = string.Empty;
-        public string? DESIGNATIONCODE { get; set; }
-        public string? DESIGNATEDSITENAME { get; set; }
-        public string? OVERLAPCODE { get; set; }
-        public decimal? OVERLAPPERC { get; set; }
+        public long id { get; set; }
+        public long releaseId { get; set; }
+        public string site_code { get; set; } = string.Empty;
+        public string F_2_3_1_biogeo_marine_code { get; set; } = string.Empty;
+        public double? F_2_3_2_biogeo_marine_percent { get; set; }
+        public string? F_2_3_3_marine_relationship_biogeo { get; set; }
 
         private string dbConnection = string.Empty;
 
-        public DESIGNATIONSTATUS() { }
+        public BiogeographicalMarineRegions() { }
 
-        public DESIGNATIONSTATUS(string db)
+        public BiogeographicalMarineRegions(string db)
         {
             dbConnection = db;
         }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<DESIGNATIONSTATUS>()
-                .ToTable("DESIGNATIONSTATUS")
-                .HasKey(c => new { c.ID });
+            builder.Entity<BiogeographicalMarineRegions>()
+                .ToTable("BiogeographicalMarineRegions", schema: "data")
+                .HasKey(c => new { c.id });
         }
     }
 
-    public class DIRECTIVESPECIES : IEntityModel, IEntityModelReleasesDB
+    public class Habitats : IEntityModel, IEntityModelReleasesDB
     {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string? DIRECTIVE { get; set; }
-        public string? SPECIESNAME { get; set; }
-        public string? ANNEXII { get; set; }
-        public string? ANNEXII1 { get; set; }
-        public string? ANNEXII2 { get; set; }
-        public string? ANNEXIII1 { get; set; }
-        public string? ANNEXIII2 { get; set; }
-        public string? ANNEXIV { get; set; }
-        public string? ANNEXV { get; set; }
-        public string? SPBCAX1 { get; set; }
+        public long id { get; set; }
+        public long releaseId { get; set; }
+        public string site_code { get; set; } = string.Empty;
+        public string? F_3_1_1_habitat_code { get; set; }
+        public string? habitat_name { get; set; }
+        public Boolean? F_3_1_2_habitat_priority { get; set; }
+        public int? F_3_1_3_habitat_notPresent { get; set; }
+        public decimal? F_3_1_4_habitat_cover { get; set; }
+        public string? F_3_1_5_habitat_caves { get; set; }
+        public string? F_3_1_6_habitat_method { get; set; }
+        public string? F_3_1_7_a_habitat_startdate { get; set; }
+        public string? F_3_1_7_b_habitat_enddate { get; set; }
+        public string? F_3_1_7_c_habitat_before2022 { get; set; }
+        public string? F_3_1_8_habitat_significance { get; set; }
+        public string? F_3_1_9_habitat_representivity { get; set; }
+        public string? F_3_1_10_habitat_relative_surface { get; set; }
+        public string? F_3_1_11_a_habitat_relative_surface_text { get; set; }
+        public string? F_3_1_12_1_habitat_conserv_degree { get; set; }
+        public float? F_3_1_12_2_a_habitat_area_condition_good { get; set; }
+        public float? F_3_1_12_2_b_habitat_area_condition_notgood { get; set; }
+        public float? F_3_1_12_2_c_habitat_area_condition_unknown { get; set; }
+        public string? F_3_1_12_3_habitat_conserv_method { get; set; }
+        public string? F_3_1_13_habitat_objectives { get; set; }
+        public string? F_3_1_14_a_habitat_objectives_text { get; set; }
+        public string? F_3_1_15_habitat_global { get; set; }
+        public string? F_3_1_16_habitat_date { get; set; }
 
         private string dbConnection = string.Empty;
 
-        public DIRECTIVESPECIES() { }
+        public Habitats() { }
 
-        public DIRECTIVESPECIES(string db)
+        public Habitats(string db)
         {
             dbConnection = db;
         }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<DIRECTIVESPECIES>()
-                .ToTable("DIRECTIVESPECIES")
-                .HasKey(c => new { c.ID });
+            builder.Entity<Habitats>()
+                .ToTable("Habitats", schema: "data")
+                .HasKey(c => new { c.id });
         }
     }
 
-    public class DOCUMENTATIONLINKS : IEntityModel, IEntityModelReleasesDB
+    public class ManagementBody : IEntityModel, IEntityModelReleasesDB
     {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string SITECODE { get; set; } = string.Empty;
-        public string? LINK { get; set; }
+        public long id { get; set; }
+        public long releaseId { get; set; }
+        public string site_code { get; set; } = string.Empty;
+        public string? F_5_1_1_a_management_body { get; set; }
+        public string? F_5_1_2_management_body_contact { get; set; }
+        public string? F_5_1_3_a_management_body_address { get; set; }
+        public string? F_5_1_4_management_body_email { get; set; }
+        public string? F_5_1_5_management_URI { get; set; }
 
         private string dbConnection = string.Empty;
 
-        public DOCUMENTATIONLINKS() { }
+        public ManagementBody() { }
 
-        public DOCUMENTATIONLINKS(string db)
+        public ManagementBody(string db)
         {
             dbConnection = db;
         }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<DOCUMENTATIONLINKS>()
-                .ToTable("DOCUMENTATIONLINKS")
-                .HasKey(c => new { c.ID });
+            builder.Entity<ManagementBody>()
+                .ToTable("ManagementBody", schema: "data")
+                .HasKey(c => new { c.id });
         }
     }
 
-    public class HABITATCLASS : IEntityModel, IEntityModelReleasesDB
+    public class ManagementInfo : IEntityModel, IEntityModelReleasesDB
     {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string? SITECODE { get; set; }
-        public string? HABITATCODE { get; set; }
-        public decimal? PERCENTAGECOVER { get; set; }
-        public string? DESCRIPTION { get; set; }
+        public long id { get; set; }
+        public long releaseId { get; set; }
+        public string site_code { get; set; } = string.Empty;
+        public string? F_5_2_1_management_plans_exist { get; set; }
+        public string? F_5_2_3_a_management_text { get; set; }
+        public string? F_5_3_1_a_measures_MP_included { get; set; }
+        public string? F_5_3_1_b_measures_title { get; set; }
+        public string? F_5_3_1_c_measures_URI { get; set; }
+        public string? F_5_3_1_d_measures_text { get; set; }
+        public string? F_5_3_2_a_measures_established { get; set; }
+        public string? F_5_3_2_b_measures_implemented { get; set; }
+        public string? F_5_4_a_measures_effectiveness { get; set; }
+        public string? F_5_4_b_measures_results { get; set; }
 
         private string dbConnection = string.Empty;
 
-        public HABITATCLASS() { }
+        public ManagementInfo() { }
 
-        public HABITATCLASS(string db)
+        public ManagementInfo(string db)
         {
             dbConnection = db;
         }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<HABITATCLASS>()
-                .ToTable("HABITATCLASS")
-                .HasKey(c => new { c.ID });
+            builder.Entity<ManagementInfo>()
+                .ToTable("ManagementInfo", schema: "data")
+                .HasKey(c => new { c.id });
         }
     }
 
-    public class HABITATS : IEntityModel, IEntityModelReleasesDB
+    public class ManagementPlanList : IEntityModel, IEntityModelReleasesDB
     {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string SITECODE { get; set; } = string.Empty;
-        public string? HABITATCODE { get; set; }
-        public string? DESCRIPTION { get; set; }
-        public string? HABITAT_PRIORITY { get; set; }
-        public bool? PRIORITY_FORM_HABITAT_TYPE { get; set; }
-        public int? NON_PRESENCE_IN_SITE { get; set; }
-        public decimal? COVER_HA { get; set; }
-        public string? CAVES { get; set; }
-        public string? REPRESENTATIVITY { get; set; }
-        public string? RELSURFACE { get; set; }
-        public string? CONSERVATION { get; set; }
-        public string? GLOBAL_ASSESSMENT { get; set; }
-        public string? DATAQUALITY { get; set; }
-        public decimal? PERCENTAGE_COVER { get; set; }
-        public bool? INTRODUCTION_CANDIDATE { get; set; }
+        public long id { get; set; }
+        public long releaseId { get; set; }
+        public string site_code { get; set; } = string.Empty;
+        public string? F_5_2_2_a_management_plan_name { get; set; }
+        public string? F_5_2_2_b_management_plan_URI { get; set; }
+        public string? F_5_2_2_c_management_startdate { get; set; }
+        public int? F_5_2_2_d_management_duration { get; set; }
+        public string? F_5_2_2_e_management_duration_undefined { get; set; }
 
         private string dbConnection = string.Empty;
 
-        public HABITATS() { }
+        public ManagementPlanList() { }
 
-        public HABITATS(string db)
+        public ManagementPlanList(string db)
         {
             dbConnection = db;
         }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<HABITATS>()
-                .ToTable("HABITATS")
-                .HasKey(c => new { c.ID });
+            builder.Entity<ManagementPlanList>()
+                .ToTable("ManagementPlanList", schema: "data")
+                .HasKey(c => new { c.id });
         }
     }
 
-    public class IMPACT : IEntityModel, IEntityModelReleasesDB
+    public class Natura2000Sites : IEntityModel, IEntityModelReleasesDB
     {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string SITECODE { get; set; } = string.Empty;
-        public string? IMPACTCODE { get; set; }
-        public string? DESCRIPTION { get; set; }
-        public string? INTENSITY { get; set; }
-        public string? POLLUTIONCODE { get; set; }
-        public string? OCCURRENCE { get; set; }
-        public string? IMPACT_TYPE { get; set; }
+        public long releaseId { get; set; }
+        public string country_code { get; set; } = string.Empty;
+        public string? F_1_1_site_type { get; set; }
+        public string F_1_2_site_code { get; set; } = string.Empty;
+        public int? version { get; set; }
+        public string? F_1_3_site_name { get; set; }
+        public string? F_1_3_1_site_name_nonLatin { get; set; }
+        public string? F_1_4_1_respond_name { get; set; }
+        public string? F_1_4_2_respond_contact { get; set; }
+        public string? F_1_4_3_respond_address { get; set; }
+        public string? F_1_4_4_respond_email { get; set; }
+        public string? F_1_4_5_respond_URI { get; set; }
+        public DateTime? F_1_5_1_SPA_date { get; set; }
+        public string? F_1_5_2_a_SPA_act_URI { get; set; }
+        public string? F_1_5_2_b_SPA_act_freetext { get; set; }
+        public DateTime? F_1_5_3_pSCI_date { get; set; }
+        public DateTime? cSCI_date { get; set; }
+        public DateTime? F_1_5_4_SAC_date { get; set; }
+        public string? F_1_5_5_a_SAC_act_URI { get; set; }
+        public string? F_1_5_5_b_SAC_act_freetext { get; set; }
+        public string? F_1_5_6_site_text { get; set; }
+        public decimal? longitude { get; set; }
+        public decimal? latitude { get; set; }
+        public decimal? F_2_1_1_site_area { get; set; }
+        public string? F_2_1_2_a_area_diff { get; set; }
+        public string? F_2_1_2_b_area_diff_reason { get; set; }
+        public string? F_2_1_3_a_area_diff_text { get; set; }
+        public string? F_4_1_site_characteristics { get; set; }
+        public string? F_4_2_site_quality { get; set; }
+        public string? F_4_4_a_documentation { get; set; }
+        public string? F_4_4_1_documentation_URI { get; set; }
+        public string? F_4_4_2_documentation_date { get; set; }
+        public string? F_4_3_5_pressure_date { get; set; }
+        public string? F_6_1_1_inspire_namespace { get; set; }
+        public string? F_6_1_2_inspire_local_id { get; set; }
+        public string? F_6_1_3_inspire_version { get; set; }
+        public DateTime? release_date { get; set; }
 
         private string dbConnection = string.Empty;
 
-        public IMPACT() { }
+        public Natura2000Sites() { }
 
-        public IMPACT(string db)
+        public Natura2000Sites(string db)
         {
             dbConnection = db;
         }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<IMPACT>()
-                .ToTable("IMPACT")
-                .HasKey(c => new { c.ID });
+            builder.Entity<Natura2000Sites>()
+                .ToTable("Natura2000Sites", schema: "data")
+                .HasKey(c => new { c.releaseId, c.F_1_2_site_code });
         }
     }
 
-    public class MANAGEMENT : IEntityModel, IEntityModelReleasesDB
+    public class OtherSpecies : IEntityModel, IEntityModelReleasesDB
     {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string SITECODE { get; set; } = string.Empty;
-        public string? ORG_NAME { get; set; }
-        public string? ORG_EMAIL { get; set; }
-        public string? MANAG_CONSERV_MEASURES { get; set; }
-        public string? MANAG_PLAN { get; set; }
-        public string? MANAG_PLAN_URL { get; set; }
-        public string? MANAG_STATUS { get; set; }
-        public string? ORG_LOCATORNAME { get; set; }
-        public string? ORG_DESIGNATOR { get; set; }
-        public string? ORG_ADMINUNIT { get; set; }
-        public string? ORG_POSTCODE { get; set; }
-        public string? ORG_POSTNAME { get; set; }
-        public string? ORG_ADDRESS { get; set; }
-        public string? ORG_ADDRESS_UNSTRUCTURED { get; set; }
-        public string? THOROUGHFARE { get; set; }
+        public long id { get; set; }
+        public long releaseId { get; set; }
+        public string site_code { get; set; } = string.Empty;
+        public string? F_3_3_1_species_group { get; set; }
+        public string? F_3_3_2_species_code { get; set; }
+        public string? F_3_3_3_species_name { get; set; }
+        public Boolean? F_3_3_4_species_sensitive { get; set; }
+        public Boolean? F_3_3_5_species_notPresent { get; set; }
+        public int? F_3_3_6_1_a_species_pop_min { get; set; }
+        public int? F_3_3_6_1_b_species_pop_max { get; set; }
+        public string? F_3_3_6_2_species_pop_unit { get; set; }
+        public string? F_3_3_7_species_abundance { get; set; }
+        public string? F_3_3_8_species_motivation { get; set; }
 
         private string dbConnection = string.Empty;
 
-        public MANAGEMENT() { }
+        public OtherSpecies() { }
 
-        public MANAGEMENT(string db)
+        public OtherSpecies(string db)
         {
             dbConnection = db;
         }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<MANAGEMENT>()
-                .ToTable("MANAGEMENT")
-                .HasKey(c => new { c.ID });
+            builder.Entity<OtherSpecies>()
+                .ToTable("OtherSpecies", schema: "data")
+                .HasKey(c => new { c.id });
         }
     }
 
-    public class METADATA : IEntityModel, IEntityModelReleasesDB
+    public class Pressure : IEntityModel, IEntityModelReleasesDB
     {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string? parameter { get; set; }
-        public string? value { get; set; }
+        public long id { get; set; }
+        public long releaseId { get; set; }
+        public string site_code { get; set; } = string.Empty;
+        public string? F_4_3_1_pressure_code { get; set; }
+        public string? F_4_3_2_pressure_rank { get; set; }
+        public string? F_4_3_3_pressure_location { get; set; }
+        public string? F_4_3_4_a_pressure_text { get; set; }
 
         private string dbConnection = string.Empty;
 
-        public METADATA() { }
+        public Pressure() { }
 
-        public METADATA(string db)
+        public Pressure(string db)
         {
             dbConnection = db;
         }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<METADATA>()
-                .ToTable("METADATA")
-                .HasKey(c => new { c.ID });
+            builder.Entity<Pressure>()
+                .ToTable("Pressure", schema: "data")
+                .HasKey(c => new { c.id });
         }
     }
 
-    public class NATURA2000SITES : IEntityModel, IEntityModelReleasesDB
+    public class Species : IEntityModel, IEntityModelReleasesDB
     {
-        public long ReleaseId { get; set; }
-        public string COUNTRY_CODE { get; set; } = string.Empty;
-        public string SITECODE { get; set; } = string.Empty;
-        public int? VERSION { get; set; }
-        public string? SITENAME { get; set; }
-        public string? SITETYPE { get; set; }
-        public DateTime? DATE_COMPILATION { get; set; }
-        public DateTime? DATE_UPDATE { get; set; }
-        public DateTime? DATE_SPA { get; set; }
-        public string? SPA_LEGAL_REFERENCE { get; set; }
-        public DateTime? DATE_PROP_SCI { get; set; }
-        public DateTime? DATE_CONF_SCI { get; set; }
-        public DateTime? DATE_SAC { get; set; }
-        public string? SAC_LEGAL_REFERENCE { get; set; }
-        public string? EXPLANATIONS { get; set; }
-        public decimal? AREAHA { get; set; }
-        public decimal? LENGTHKM { get; set; }
-        public decimal? MARINE_AREA_PERCENTAGE { get; set; }
-        public decimal? LONGITUDE { get; set; }
-        public decimal? LATITUDE { get; set; }
-        public string? DOCUMENTATION { get; set; }
-        public string? QUALITY { get; set; }
-        public string? DESIGNATION { get; set; }
-        public string? OTHERCHARACT { get; set; }
-        public DateTime? RELEASE_DATE { get; set; }
+        public long id { get; set; }
+        public long releaseId { get; set; }
+        public string site_code { get; set; } = string.Empty;
+        public string? F_3_2_1_species_group { get; set; }
+        public string? F_3_2_2_species_code { get; set; }
+        public string? F_3_2_3_species_name { get; set; }
+        public Boolean? F_3_2_4_species_sensitive { get; set; }
+        public Boolean? F_3_2_5_species_notPresent { get; set; }
+        public string? F_3_2_6_species_poptype { get; set; }
+        public int? F_3_2_7_1_a_species_pop_min { get; set; }
+        public int? F_3_2_7_1_b_species_pop_max { get; set; }
+        public string? F_3_2_7_2_species_pop_unit { get; set; }
+        public string? F_3_2_8_species_abundance { get; set; }
+        public string? F_3_2_9_species_method { get; set; }
+        public string? F_3_2_10_a_species_startdate { get; set; }
+        public string? F_3_2_10_b_species_enddate { get; set; }
+        public string? F_3_2_10_c_species_before_2022 { get; set; }
+        public string? F_3_2_11_species_significance { get; set; }
+        public string? F_3_2_12_species_SPA_class { get; set; }
+        public string? F_3_2_13_species_rel_pop { get; set; }
+        public string? F_3_2_14_a_species_rel_pop_text { get; set; }
+        public string? F_3_2_15_1_species_conserv_degree { get; set; }
+        public float? F_3_2_15_2_a_species_qual_suf { get; set; }
+        public float? F_3_2_15_2_b_species_qual_non_suf { get; set; }
+        public float? F_3_2_15_2_c_species_qual_unknown { get; set; }
+        public string? F_3_2_15_3_a_species_qual_class_suf { get; set; }
+        public string? F_3_2_15_3_b_species_qual_class_non_suf { get; set; }
+        public string? F_3_2_15_3_c_species_qual_class_unknown { get; set; }
+        public string? F_3_2_16_species_objectives { get; set; }
+        public string? F_3_2_17_a_species_objectives_text { get; set; }
+        public string? F_3_2_18_species_isolation { get; set; }
+        public string? F_3_2_19_species_global { get; set; }
+        public string? F_3_2_20_species_date { get; set; }
 
         private string dbConnection = string.Empty;
 
-        public NATURA2000SITES() { }
+        public Species() { }
 
-        public NATURA2000SITES(string db)
+        public Species(string db)
         {
             dbConnection = db;
         }
 
         public static void OnModelCreating(ModelBuilder builder)
         {
-            builder.Entity<NATURA2000SITES>()
-                .ToTable("NATURA2000SITES")
-                .HasKey(c => new { c.ReleaseId, c.SITECODE });
-        }
-    }
-
-    public class NUTSBYSITE : IEntityModel, IEntityModelReleasesDB
-    {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string SITECODE { get; set; } = string.Empty;
-        public string NUTID { get; set; } = string.Empty;
-        public decimal? COVERPERCENTAGE { get; set; }
-        public string? NUTS_NAME { get; set; } = string.Empty;
-
-        private string dbConnection = string.Empty;
-
-        public NUTSBYSITE() { }
-
-        public NUTSBYSITE(string db)
-        {
-            dbConnection = db;
-        }
-
-        public static void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<NUTSBYSITE>()
-                .ToTable("NUTSBYSITE")
-                .HasKey(c => new { c.ID });
-        }
-    }
-
-    public class OTHERSPECIES : IEntityModel, IEntityModelReleasesDB
-    {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string COUNTRY_CODE { get; set; } = string.Empty;
-        public string SITECODE { get; set; } = string.Empty;
-        public string? SPECIESGROUP { get; set; }
-        public string? SPECIESNAME { get; set; }
-        public string? SPECIESCODE { get; set; }
-        public string? MOTIVATION { get; set; }
-        public bool? SENSITIVE { get; set; }
-        public bool? NONPRESENCEINSITE { get; set; }
-        public int? LOWERBOUND { get; set; }
-        public int? UPPERBOUND { get; set; }
-        public string? ABUNDANCE_CATEGORY { get; set; }
-        public string? COUNTING_UNIT { get; set; }
-        public bool? INTRODUCTION_CANDIDATE { get; set; }
-
-        private string dbConnection = string.Empty;
-
-        public OTHERSPECIES() { }
-
-        public OTHERSPECIES(string db)
-        {
-            dbConnection = db;
-        }
-
-        public static void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<OTHERSPECIES>()
-                .ToTable("OTHERSPECIES")
-                .HasKey(c => new { c.ID });
-        }
-    }
-
-    public class REFERENCEMAP : IEntityModel, IEntityModelReleasesDB
-    {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string SITECODE { get; set; } = string.Empty;
-        public string? NATIONALMAPNUMBER { get; set; }
-        public string? SCALE { get; set; }
-        public string? PROJECTION { get; set; }
-        public string? DETAILS { get; set; }
-        public string? INSPIRE { get; set; }
-        public Int16? PDFPROVIDED { get; set; }
-
-        private string dbConnection = string.Empty;
-
-        public REFERENCEMAP() { }
-
-        public REFERENCEMAP(string db)
-        {
-            dbConnection = db;
-        }
-
-        public static void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<REFERENCEMAP>()
-                .ToTable("REFERENCEMAP")
-                .HasKey(c => new { c.ID });
-        }
-    }
-
-    public class SITEOWNERTYPE : IEntityModel, IEntityModelReleasesDB
-    {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string SITECODE { get; set; } = string.Empty;
-        public string? TYPE { get; set; }
-        public decimal? PERCENT { get; set; }
-
-        private string dbConnection = string.Empty;
-
-        public SITEOWNERTYPE() { }
-
-        public SITEOWNERTYPE(string db)
-        {
-            dbConnection = db;
-        }
-
-        public static void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<SITEOWNERTYPE>()
-                .ToTable("SITEOWNERTYPE")
-                .HasKey(c => new { c.ID });
-        }
-    }
-
-    public class SiteSpatial : IEntityModel, IEntityModelReleasesDB
-    {
-        public long ReleaseId { get; set; }
-        public string? siteCode { get; set; }
-        public string? data { get; set; }
-        public decimal? area_ha { get; set; }
-
-        private string dbConnection = string.Empty;
-
-        public SiteSpatial() { }
-
-        public SiteSpatial(string db)
-        {
-            dbConnection = db;
-        }
-
-        public static void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<SiteSpatial>()
-                .ToTable("SiteSpatial")
-                .HasKey(c => new { c.ReleaseId, c.siteCode });
-        }
-    }
-
-    public class SPECIES : IEntityModel, IEntityModelReleasesDB
-    {
-        public long ID { get; set; }
-        public long ReleaseId { get; set; }
-        public string? COUNTRY_CODE { get; set; }
-        public string? SITECODE { get; set; }
-        public string? SPECIESNAME { get; set; }
-        public string? SPECIESCODE { get; set; }
-        public string? REF_SPGROUP { get; set; }
-        public string? SPGROUP { get; set; }
-        public bool? SENSITIVE { get; set; }
-        public bool? NONPRESENCEINSITE { get; set; }
-        public string? POPULATION_TYPE { get; set; }
-        public string? LOWERBOUND { get; set; }
-        public string? UPPERBOUND { get; set; }
-        public string? COUNTING_UNIT { get; set; }
-        public string? ABUNDANCE_CATEGORY { get; set; }
-        public string? DATAQUALITY { get; set; }
-        public string? POPULATION { get; set; }
-        public string? CONSERVATION { get; set; }
-        public string? ISOLATION { get; set; }
-        public string? GLOBAL { get; set; }
-        public bool? INTRODUCTION_CANDIDATE { get; set; }
-
-        private string dbConnection = string.Empty;
-
-        public SPECIES() { }
-
-        public SPECIES(string db)
-        {
-            dbConnection = db;
-        }
-
-        public static void OnModelCreating(ModelBuilder builder)
-        {
-            builder.Entity<SPECIES>()
-                .ToTable("SPECIES")
-                .HasKey(c => new { c.ID });
+            builder.Entity<Species>()
+                .ToTable("Species", schema: "data")
+                .HasKey(c => new { c.id });
         }
     }
 }
