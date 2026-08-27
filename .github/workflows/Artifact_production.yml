@@ -17,12 +17,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up .NET Core env
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
 
       - name: copy config
         run: |
@@ -30,24 +27,28 @@ jobs:
           del natura2000_portal_back/Configs/*.json
           rmdir natura2000_portal_back/Configs
 
-      - name: dotnet publish
-        shell: pwsh
+      - name: Replace placeholders with secrets
         run: |
-          $publishDir = "C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp"
-          # Publish project
-          dotnet publish -c Release --property:PublishDir=$publishDir
+          $appSettings = "natura2000_portal_back\appsettings.json"
 
-          # Create multi-line .env file
-          @"
-          BackboneDB_ConnectionString=${{ secrets.BACKBONEDB_CONNECTIONSTRING }}
-          ReleasesDB_ConnectionString=${{ secrets.RELEASESDB_CONNECTIONSTRING }}
-          Releases_LegacyDB_ConnectionString=${{ secrets.N2K_RELEASES_LEGACY_CONNSTRING }}
-          ProductionDB_ConnectionString=${{ secrets.N2K_PRODUCTION_CONNSTRING }}          
-          FME_TOKEN=${{ secrets.FME_TOKEN }}
-          "@ | Out-File -FilePath "$publishDir\env" -Encoding utf8
+          (Get-Content $appSettings) `
+            -replace '\$\{BackboneDB_ConnectionString\}', '${{ secrets.BACKBONEDB_CONNECTIONSTRING }}' `
+            -replace '\$\{ReleasesDB_ConnectionString\}', '${{ secrets.RELEASESDB_CONNECTIONSTRING }}' `
+            -replace '\$\{Releases_LegacyDB_ConnectionString\}', '${{ secrets.N2K_RELEASES_LEGACY_CONNSTRING }}' `
+            -replace '\$\{ProductionDB_ConnectionString\}', '${{ secrets.N2K_PRODUCTION_CONNSTRING }}' `
+            -replace '\$\{FME_TOKEN\}', '${{ secrets.FME_TOKEN }}' `
+            | Set-Content $appSettings  
 
-      - name: Upload artifact for deployment job in Production
+      - name: Publish
+        run: |
+          $publishDir = "$env:RUNNER_TEMP\publish"
+          New-Item -ItemType Directory -Force -Path $publishDir
+          dotnet publish natura2000_portal_back/natura2000_portal_back.csproj `
+            -c Release `
+            --output $publishDir
+          
+      - name: Upload artifact for deployment job in Staging
         uses: actions/upload-artifact@v4
         with:
           name: backend-app_prod
-          path: C:\Users\runneradmin\AppData\Local\Microsoft\dotnet/myapp
+          path: ${{ runner.temp }}\publish
