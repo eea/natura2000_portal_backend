@@ -17,18 +17,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Set up .NET Core
-        uses: actions/setup-dotnet@v2
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-
-      - name: Build with dotnet
-        run: dotnet build --configuration Release
-        
+      
       - name: copy config
         run: |
           copy natura2000_portal_back/Configs/appsettings_dev.json natura2000_portal_back/appsettings.json  
           del natura2000_portal_back/Configs/*.json
           rmdir natura2000_portal_back/Configs
+
+      - name: Replace placeholders with secrets
+        run: |
+          $appSettings = "natura2000_portal_back\appsettings.json"
+
+          (Get-Content $appSettings) `
+            -replace '\$\{BackboneDB_ConnectionString\}', '${{ secrets.BACKBONEDB_CONNECTIONSTRING }}' `
+            -replace '\$\{CatalogueDB_ConnectionString\}', '${{ secrets.N2K_CATALOGUE_CONNSTRING }}' `
+            -replace '\$\{ReleasesDB_ConnectionString\}', '${{ secrets.RELEASESDB_CONNECTIONSTRING }}' `
+            -replace '\$\{Releases_LegacyDB_ConnectionString\}', '${{ secrets.N2K_RELEASES_LEGACY_CONNSTRING }}' `
+            -replace '\$\{ProductionDB_ConnectionString\}', '${{ secrets.N2K_PRODUCTION_CONNSTRING }}' `
+            -replace '\$\{FME_TOKEN\}', '${{ secrets.FME_TOKEN }}' `
+            | Set-Content $appSettings          
+
+      - name: Build with dotnet
+        run: dotnet build --configuration Release          
 
       - name: dotnet publish
         shell: pwsh
@@ -37,13 +50,6 @@ jobs:
           # Publish project
           dotnet publish -c Release --property:PublishDir=$publishDir
 
-          # Create multi-line .env file
-          @"
-          BackboneDB_ConnectionString=${{ secrets.BACKBONEDB_CONNECTIONSTRING }}
-          CatalogueDB_ConnectionString=${{ secrets.N2K_CATALOGUE_CONNSTRING }}
-          ReleasesDB_ConnectionString=${{ secrets.RELEASESDB_CONNECTIONSTRING }}
-          FME_TOKEN=${{ secrets.FME_TOKEN }}
-          "@ | Out-File -FilePath "$publishDir\env" -Encoding utf8
 
       - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
@@ -66,11 +72,11 @@ jobs:
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
           app-name: 'n2k-portal-back'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_71F1A85C334548A08092BE0DA6A30293 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_318DBE1B2E4D4CC194F7EACB090051A8 }}
           package: .
   delete:
     runs-on: windows-latest
@@ -81,4 +87,3 @@ jobs:
         uses: geekyeggo/delete-artifact@v5
         with:
           name: .net-app  
-
