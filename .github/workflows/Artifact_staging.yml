@@ -40,6 +40,7 @@ jobs:
           # Create multi-line .env file
           @"
           BackboneDB_ConnectionString=${{ secrets.BACKBONEDB_CONNECTIONSTRING }}
+          CatalogueDB_ConnectionString=${{ secrets.N2K_CATALOGUE_CONNSTRING }}
           ReleasesDB_ConnectionString=${{ secrets.RELEASESDB_CONNECTIONSTRING }}
           FME_TOKEN=${{ secrets.FME_TOKEN }}
           "@ | Out-File -FilePath "$publishDir\env" -Encoding utf8                

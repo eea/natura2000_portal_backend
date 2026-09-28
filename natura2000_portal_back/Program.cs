@@ -61,6 +61,11 @@ builder.Services.AddDbContext<N2KBackboneContext>(options =>
     options.UseSqlServer(connStrBackbone); 
 });
 
+builder.Services.AddDbContext<N2KCatalogueContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("N2K_CatalogueBackEndContext"));
+});
+
 var connStrReleases =
     builder.Configuration["ReleasesDB_ConnectionString"]
     ?? builder.Configuration.GetConnectionString("N2K_ReleasesBackEndContext");

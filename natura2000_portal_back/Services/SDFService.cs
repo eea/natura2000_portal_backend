@@ -1,24 +1,27 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using natura2000_portal_back.Data;
-using natura2000_portal_back.Models.ViewModel;
 using Microsoft.Extensions.Options;
+using natura2000_portal_back.Data;
 using natura2000_portal_back.Models;
 using natura2000_portal_back.Models.backbone_db;
+using natura2000_portal_back.Models.catalogue_db;
 using natura2000_portal_back.Models.release_db;
+using natura2000_portal_back.Models.ViewModel;
 
 namespace natura2000_portal_back.Services
 {
     public class SDFService : ISDFService
     {
         private readonly N2KBackboneContext _dataContext;
+        private readonly N2KCatalogueContext _catalogueContext;
         private readonly N2KReleasesLegacyContext _releaseLegacyContext;
         private readonly N2KReleasesContext _releaseContext;
         private readonly N2K_ProductionContext _productionContext;
         private readonly IOptions<ConfigSettings> _appSettings;
 
-        public SDFService(N2KBackboneContext dataContext, N2KReleasesContext releaseContext, N2KReleasesLegacyContext releaseLegacyContext, N2K_ProductionContext productionContext, IOptions<ConfigSettings> app)
+        public SDFService(N2KBackboneContext dataContext, N2KCatalogueContext catalogueContext, N2KReleasesContext releaseContext, N2KReleasesLegacyContext releaseLegacyContext, N2K_ProductionContext productionContext, IOptions<ConfigSettings> app)
         {
             _dataContext = dataContext;
+            _catalogueContext = catalogueContext;
             _releaseContext = releaseContext;
             _releaseLegacyContext = releaseLegacyContext;
             _productionContext = productionContext;
@@ -217,6 +220,8 @@ namespace natura2000_portal_back.Services
                 List<DataQualityTypes> dataQualityTypes = await _dataContext.Set<DataQualityTypes>().AsNoTracking().ToListAsync();
                 List<Nuts> nuts = await _dataContext.Set<Nuts>().AsNoTracking().ToListAsync();
                 List<SpeciesGroups> speciesGroups = await _dataContext.Set<SpeciesGroups>().AsNoTracking().ToListAsync();
+                List<species_photos> species_photos = await _catalogueContext.Set<species_photos>().AsNoTracking().ToListAsync();
+                List<species_information> species_information = await _catalogueContext.Set<species_information>().AsNoTracking().ToListAsync();
 
                 //Data
                 List<Models.release_db.Habitats> habitats = await _releaseContext.Set<Models.release_db.Habitats>().Where(h => h.site_code == SiteCode && h.releaseId == release.ID).AsNoTracking().ToListAsync();
@@ -405,8 +410,11 @@ namespace natura2000_portal_back.Services
                             F_3_2_7_1_b_species_pop_max = !h.F_3_2_7_1_b_species_pop_max.Equals(0) ? h.F_3_2_7_1_b_species_pop_max : null,
                             F_3_2_7_2_species_pop_unit = h.F_3_2_7_2_species_pop_unit,
                             F_3_2_8_species_abundance = h.F_3_2_8_species_abundance,
-                            F_3_2_9_species_method = h.F_3_2_9_species_method
+                            F_3_2_9_species_method = h.F_3_2_9_species_method,
+                            SpeciesEunisId = species_photos.Where(w => w.Natura2000 == h.F_3_2_2_species_code).Select(s => s.eunis_id).FirstOrDefault()
                         };
+                        if (temp.SpeciesEunisId == null)
+                            temp.SpeciesEunisId = species_information.Where(w => w.code_2000 == h.F_3_2_2_species_code).Select(s => s.id_eunis).FirstOrDefault().ToString();
                         if (h.F_3_2_4_species_sensitive != null)
                             temp.F_3_2_4_species_sensitive = (h.F_3_2_4_species_sensitive == true) ? booleanTrue : booleanUnchecked;
                         if (h.F_3_2_5_species_notPresent != null)
@@ -442,8 +450,11 @@ namespace natura2000_portal_back.Services
                             F_3_2_17_a_species_objectives_text = h.F_3_2_17_a_species_objectives_text,
                             F_3_2_18_species_isolation = h.F_3_2_18_species_isolation,
                             F_3_2_19_species_global = h.F_3_2_19_species_global,
-                            F_3_2_20_species_date = h.F_3_2_20_species_date != null && h.F_3_2_20_species_date != "" ? DateOnly.ParseExact(h.F_3_2_20_species_date, "yyyyMM", System.Globalization.CultureInfo.InvariantCulture) : null
+                            F_3_2_20_species_date = h.F_3_2_20_species_date != null && h.F_3_2_20_species_date != "" ? DateOnly.ParseExact(h.F_3_2_20_species_date, "yyyyMM", System.Globalization.CultureInfo.InvariantCulture) : null,
+                            SpeciesEunisId = species_photos.Where(w => w.Natura2000 == h.F_3_2_2_species_code).Select(s => s.eunis_id).FirstOrDefault()
                         };
+                        if (temp.SpeciesEunisId == null)
+                            temp.SpeciesEunisId = species_information.Where(w => w.code_2000 == h.F_3_2_2_species_code).Select(s => s.id_eunis).FirstOrDefault().ToString();
                         if (h.F_3_2_15_2_a_species_qual_suf != null || h.F_3_2_15_2_b_species_qual_non_suf != null || h.F_3_2_15_2_c_species_qual_unknown != null)
                             temp.F_3_2_15_2_species_qual = h.F_3_2_15_2_a_species_qual_suf + ", " + h.F_3_2_15_2_b_species_qual_non_suf + ", " + h.F_3_2_15_2_c_species_qual_unknown;
                         if (h.F_3_2_15_3_a_species_qual_class_suf != null || h.F_3_2_15_3_b_species_qual_class_non_suf != null || h.F_3_2_15_3_c_species_qual_class_unknown != null)
@@ -459,13 +470,16 @@ namespace natura2000_portal_back.Services
                         OtherSpeciesSDF temp = new()
                         {
                             F_3_3_1_species_group = h.F_3_3_1_species_group,
-                            F_3_3_2_species_code = h.F_3_3_2_species_code ?? "-",
+                            F_3_3_2_species_code = h.F_3_3_2_species_code ?? string.Empty,
                             F_3_3_3_species_name = h.F_3_3_3_species_name,
                             F_3_3_6_1_a_species_pop_min = !h.F_3_3_6_1_a_species_pop_min.Equals(0) ? h.F_3_3_6_1_a_species_pop_min : null,
                             F_3_3_6_1_b_species_pop_max = !h.F_3_3_6_1_b_species_pop_max.Equals(0) ? h.F_3_3_6_1_b_species_pop_max : null,
                             F_3_3_6_2_species_pop_unit = h.F_3_3_6_2_species_pop_unit,
-                            F_3_3_7_species_abundance = h.F_3_3_7_species_abundance
+                            F_3_3_7_species_abundance = h.F_3_3_7_species_abundance,
+                            SpeciesEunisId = species_photos.Where(w => w.scientific_name == h.F_3_3_3_species_name).Select(s => s.eunis_id).FirstOrDefault()
                         };
+                        if (temp.SpeciesEunisId == null)
+                            temp.SpeciesEunisId = species_information.Where(w => w.scientific_name == h.F_3_3_3_species_name).Select(s => s.id_eunis).FirstOrDefault().ToString();
                         if (h.F_3_3_4_species_sensitive != null)
                             temp.F_3_3_4_species_sensitive = (h.F_3_3_4_species_sensitive == true) ? booleanTrue : booleanUnchecked;
                         if (h.F_3_3_5_species_notPresent != null)
@@ -480,9 +494,12 @@ namespace natura2000_portal_back.Services
                     {
                         SpeciesMotivation temp = new()
                         {
-                            F_3_3_2_species_code = h.F_3_3_2_species_code ?? "-",
-                            F_3_3_3_species_name = h.F_3_3_3_species_name
+                            F_3_3_2_species_code = h.F_3_3_2_species_code ?? string.Empty,
+                            F_3_3_3_species_name = h.F_3_3_3_species_name,
+                            SpeciesEunisId = species_photos.Where(w => w.scientific_name == h.F_3_3_3_species_name).Select(s => s.eunis_id).FirstOrDefault()
                         };
+                        if (temp.SpeciesEunisId == null)
+                            temp.SpeciesEunisId = species_information.Where(w => w.scientific_name == h.F_3_3_3_species_name).Select(s => s.id_eunis).FirstOrDefault().ToString();
                         if (h.F_3_3_8_species_motivation != null)
                         {
                             string annex = h.F_3_3_8_species_motivation;
@@ -701,6 +718,8 @@ namespace natura2000_portal_back.Services
                 List<Countries> countries = await _dataContext.Set<Countries>().AsNoTracking().ToListAsync();
                 List<DataQualityTypes> dataQualityTypes = await _dataContext.Set<DataQualityTypes>().AsNoTracking().ToListAsync();
                 List<Nuts> nuts = await _dataContext.Set<Nuts>().AsNoTracking().ToListAsync();
+                List<species_photos> species_photos = await _catalogueContext.Set<species_photos>().AsNoTracking().ToListAsync();
+                List<species_information> species_information = await _catalogueContext.Set<species_information>().AsNoTracking().ToListAsync();
 
                 //Data
                 List<HABITATS> habitats = await _releaseLegacyContext.Set<HABITATS>().Where(h => h.SITECODE == SiteCode && h.ReleaseId == release.ID).AsNoTracking().ToListAsync();
@@ -872,8 +891,11 @@ namespace natura2000_portal_back.Services
                             Population = h.POPULATION,
                             Conservation = h.CONSERVATION,
                             Isolation = h.ISOLATION,
-                            Global = h.GLOBAL
+                            Global = h.GLOBAL,
+                            SpeciesEunisId = species_photos.Where(w => w.Natura2000 == h.SPECIESCODE).Select(s => s.eunis_id).FirstOrDefault()
                         };
+                        if (temp.SpeciesEunisId == null)
+                            temp.SpeciesEunisId = species_information.Where(w => w.code_2000 == h.SPECIESCODE).Select(s => s.id_eunis).FirstOrDefault().ToString();
                         if (h.SENSITIVE != null)
                             temp.Sensitive = (h.SENSITIVE == true) ? booleanTrue : booleanUnchecked;
                         if (h.NONPRESENCEINSITE != null)
@@ -889,13 +911,16 @@ namespace natura2000_portal_back.Services
                         SpeciesSDF temp = new()
                         {
                             SpeciesName = h.SPECIESNAME,
-                            Code = h.SPECIESCODE ?? "-",
+                            Code = h.SPECIESCODE ?? string.Empty,
                             Group = h.SPECIESGROUP,
                             Min = !h.LOWERBOUND.Equals(0) ? h.LOWERBOUND : null,
                             Max = !h.UPPERBOUND.Equals(0) ? h.UPPERBOUND : null,
                             Unit = h.COUNTING_UNIT,
-                            Category = h.ABUNDANCE_CATEGORY
+                            Category = h.ABUNDANCE_CATEGORY,
+                            SpeciesEunisId = species_photos.Where(w => w.scientific_name == h.SPECIESNAME).Select(s => s.eunis_id).FirstOrDefault()
                         };
+                        if (temp.SpeciesEunisId == null)
+                            temp.SpeciesEunisId = species_information.Where(w => w.scientific_name == h.SPECIESNAME).Select(s => s.id_eunis).FirstOrDefault().ToString();
                         if (h.SENSITIVE != null)
                             temp.Sensitive = (h.SENSITIVE == true) ? booleanTrue : booleanUnchecked;
                         if (h.NONPRESENCEINSITE != null)
