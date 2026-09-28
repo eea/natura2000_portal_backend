@@ -9,6 +9,8 @@ namespace natura2000_portal_back.Models
 
     public interface IEntityModelBackboneDB { }
 
+    public interface IEntityModelCatalogueDB { }
+
     public interface IEntityModelVersioningDB { }
 
     public interface IEntityModelReleasesDB { }

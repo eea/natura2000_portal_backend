@@ -33,6 +33,7 @@ jobs:
 
           (Get-Content $appSettings) `
             -replace '\$\{BackboneDB_ConnectionString\}', '${{ secrets.BACKBONEDB_CONNECTIONSTRING }}' `
+            -replace '\$\{CatalogueDB_ConnectionString\}', '${{ secrets.N2K_CATALOGUE_CONNSTRING }}' `
             -replace '\$\{ReleasesDB_ConnectionString\}', '${{ secrets.RELEASESDB_CONNECTIONSTRING }}' `
             -replace '\$\{Releases_LegacyDB_ConnectionString\}', '${{ secrets.N2K_RELEASES_LEGACY_CONNSTRING }}' `
             -replace '\$\{ProductionDB_ConnectionString\}', '${{ secrets.N2K_PRODUCTION_CONNSTRING }}' `
@@ -75,7 +76,7 @@ jobs:
         with:
           app-name: 'n2k-portal-back'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_71F1A85C334548A08092BE0DA6A30293 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_318DBE1B2E4D4CC194F7EACB090051A8 }}
           package: .
   delete:
     runs-on: windows-latest
@@ -86,4 +87,3 @@ jobs:
         uses: geekyeggo/delete-artifact@v5
         with:
           name: .net-app  
-
