@@ -135,6 +135,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public string? F_3_2_8_species_abundance { get; set; }
         public string? F_3_2_9_species_method { get; set; }
         public string? F_3_2_10_species_date { get; set; }
+        public string? SpeciesEunisId { get; set; }
     }
 
     [NotMapped]
@@ -156,6 +157,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public string? F_3_2_18_species_isolation { get; set; }
         public string? F_3_2_19_species_global { get; set; }
         public DateOnly? F_3_2_20_species_date { get; set; }
+        public string? SpeciesEunisId { get; set; }
     }
 
     [NotMapped]
@@ -170,6 +172,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public int? F_3_3_6_1_b_species_pop_max { get; set; }
         public string? F_3_3_6_2_species_pop_unit { get; set; }
         public string? F_3_3_7_species_abundance { get; set; }
+        public string? SpeciesEunisId { get; set; }
     }
 
     [NotMapped]
@@ -192,6 +195,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public string? F_3_3_8_cwr_frg { get; set; }
         public string? F_3_3_8_ias_union { get; set; }
         public string? F_3_3_8_other { get; set; }
+        public string? SpeciesEunisId { get; set; }
     }
 
     [NotMapped]

@@ -1,4 +1,4 @@
-using DotNetEnv;
+using Mapster;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +15,7 @@ using System.Text.RegularExpressions;
 
 
 // Load local .env file (ignored in Git)
-Env.Load("env");
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Logging.ClearProviders().AddConsole();
@@ -29,7 +29,7 @@ builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
 });
-builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+builder.Services.AddMapster();
 builder.Services.AddScoped<IDownloadService, DownloadService>();
 builder.Services.AddScoped<IInfoService, InfoService>();
 builder.Services.AddScoped<ISDFService, SDFService>();
@@ -59,6 +59,11 @@ var connStrBackbone =
 builder.Services.AddDbContext<N2KBackboneContext>(options =>
 {
     options.UseSqlServer(connStrBackbone); 
+});
+
+builder.Services.AddDbContext<N2KCatalogueContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("N2K_CatalogueBackEndContext"));
 });
 
 var connStrReleases =

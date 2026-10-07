@@ -141,6 +141,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public string? OtherCategoriesB { get; set; }
         public string? OtherCategoriesC { get; set; }
         public string? OtherCategoriesD { get; set; }
+        public string? SpeciesEunisId { get; set; }
     }
 
     [NotMapped]

@@ -21,7 +21,7 @@
         public string Environment { get; set; } = string.Empty;
         public string SACComputationDestDatasetFolder { get; set; } = string.Empty;
         public string fme_security_token { get; set; } = string.Empty;
-        /*    
+        /*
         {
             get
             {
