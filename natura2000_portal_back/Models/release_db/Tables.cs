@@ -33,8 +33,10 @@ namespace natura2000_portal_back.Models.release_db
         public long releaseId { get; set; }
         public string site_code { get; set; } = string.Empty;
         public string F_2_3_1_biogeo_marine_code { get; set; } = string.Empty;
+        public string? biogeo_marine_label { get; set; }
         public double? F_2_3_2_biogeo_marine_percent { get; set; }
         public string? F_2_3_3_marine_relationship_biogeo { get; set; }
+        public string? marine_relationship_biogeo_label { get; set; }
 
         private string dbConnection = string.Empty;
 
@@ -206,7 +208,7 @@ namespace natura2000_portal_back.Models.release_db
         public string? F_1_5_2_a_SPA_act_URI { get; set; }
         public string? F_1_5_2_b_SPA_act_freetext { get; set; }
         public DateTime? F_1_5_3_pSCI_date { get; set; }
-        public DateTime? cSCI_date { get; set; }
+        public DateTime? SCI_confirmed_date { get; set; }
         public DateTime? F_1_5_4_SAC_date { get; set; }
         public string? F_1_5_5_a_SAC_act_URI { get; set; }
         public string? F_1_5_5_b_SAC_act_freetext { get; set; }
@@ -214,7 +216,6 @@ namespace natura2000_portal_back.Models.release_db
         public decimal? longitude { get; set; }
         public decimal? latitude { get; set; }
         public decimal? F_2_1_1_site_area { get; set; }
-        public string? F_2_1_2_a_area_diff { get; set; }
         public string? F_2_1_2_b_area_diff_reason { get; set; }
         public string? F_2_1_3_a_area_diff_text { get; set; }
         public string? F_4_1_site_characteristics { get; set; }

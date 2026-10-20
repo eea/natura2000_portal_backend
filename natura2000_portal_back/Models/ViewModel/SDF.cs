@@ -57,7 +57,7 @@ namespace natura2000_portal_back.Models.ViewModel
         public decimal? longitude { get; set; }
         public decimal? latitude { get; set; }
         public decimal? F_2_1_1_site_area { get; set; }
-        public string? F_2_1_2_a_area_diff { get; set; }
+        public string? F_2_1_2_b_area_diff_reason { get; set; }
         public string? F_2_1_3_a_area_diff_text { get; set; }
         public List<AdministrativeRegion> F_2_2_administrative_region { get; set; } = new List<AdministrativeRegion>();
         public List<BiogeographicalRegions> F_2_3_biogeographical_regions { get; set; } = new List<BiogeographicalRegions>();
