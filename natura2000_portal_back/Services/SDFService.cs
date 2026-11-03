@@ -296,7 +296,7 @@ namespace natura2000_portal_back.Services
                     result.SiteIdentification.F_1_5_2_a_SPA_act_URI = site.F_1_5_2_a_SPA_act_URI;
                     result.SiteIdentification.F_1_5_2_b_SPA_act_freetext = site.F_1_5_2_b_SPA_act_freetext;
                     result.SiteIdentification.F_1_5_3_pSCI_date = site.F_1_5_3_pSCI_date;
-                    result.SiteIdentification.cSCI_date = site.cSCI_date;
+                    result.SiteIdentification.cSCI_date = site.SCI_confirmed_date;
                     result.SiteIdentification.F_1_5_4_SAC_date = site.F_1_5_4_SAC_date;
                     result.SiteIdentification.F_1_5_5_a_SAC_act_URI = site.F_1_5_5_a_SAC_act_URI;
                     result.SiteIdentification.F_1_5_5_b_SAC_act_freetext = site.F_1_5_5_b_SAC_act_freetext;
@@ -310,7 +310,7 @@ namespace natura2000_portal_back.Services
                     result.SiteLocation.longitude = site.longitude;
                     result.SiteLocation.latitude = site.latitude;
                     result.SiteLocation.F_2_1_1_site_area = site.F_2_1_1_site_area;
-                    result.SiteLocation.F_2_1_2_a_area_diff = site.F_2_1_2_a_area_diff != null && site.F_2_1_2_a_area_diff != "" && site.F_2_1_2_a_area_diff == "Yes" ? site.F_2_1_2_b_area_diff_reason : null;
+                    result.SiteLocation.F_2_1_2_b_area_diff_reason = site.F_2_1_2_b_area_diff_reason;
                     result.SiteLocation.F_2_1_3_a_area_diff_text = site.F_2_1_3_a_area_diff_text;
                 }
                 if (administrativeRegion != null && administrativeRegion.Count > 0)
@@ -331,9 +331,9 @@ namespace natura2000_portal_back.Services
                     {
                         BiogeographicalRegions temp = new()
                         {
-                            F_2_3_1_biogeo_marine_code = br.F_2_3_1_biogeo_marine_code,
+                            F_2_3_1_biogeo_marine_code = br.biogeo_marine_label,
                             F_2_3_2_biogeo_marine_percent = br.F_2_3_2_biogeo_marine_percent,
-                            F_2_3_3_marine_relationship_biogeo = br.F_2_3_3_marine_relationship_biogeo
+                            F_2_3_3_marine_relationship_biogeo = br.marine_relationship_biogeo_label
                         };
                         result.SiteLocation.F_2_3_biogeographical_regions.Add(temp);
                     });
