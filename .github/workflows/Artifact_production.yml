@@ -6,7 +6,7 @@ name: Build  ASP.Net Core app for n2k-portal-backend Production
 on:
   push:
     branches:
-      - main
+      - main 
   workflow_dispatch:
 
 jobs:
